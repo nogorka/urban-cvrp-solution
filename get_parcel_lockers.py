@@ -2,6 +2,7 @@ import overpy
 import csv
 from geopy.geocoders import Nominatim
 from tqdm import tqdm
+import random
 
 geolocator = Nominatim(user_agent="location_lookup")
 def get_address(lat, lon):
@@ -18,6 +19,8 @@ def get_purpose(tags):
     return tags.get('brand') or tags.get('name') or tags.get('operator') or tags.get('description', 'N/A')
 
 def get_total_volume(type):
+    if type == 'parcel_locker':
+        return random.choice([23, 32, 41])
     return 0
 
 def get_free_volume(total_volume):
