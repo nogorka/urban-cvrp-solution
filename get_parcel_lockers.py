@@ -12,14 +12,16 @@ def get_address(lat, lon):
         return "Location Decode Error"
 
 def get_type(tags):
-    print(tags)
     return tags.get('amenity') or tags.get('shop') or tags.get('office', 'N/A')
 
+def get_purpose(tags):
+    return tags.get('brand') or tags.get('name') or tags.get('operator') or tags.get('description', 'N/A')
+
 def get_total_volume(type):
-    pass
+    return 0
 
 def get_free_volume(total_volume):
-    pass
+    return 0
 
 
 def download_locations(city="Санкт-Петербург"):
@@ -50,14 +52,12 @@ def download_locations(city="Санкт-Петербург"):
 
     result = api.query(query)
 
-    print(api.parse_json(result))
-
     print("Данные успешно получены")
 
    # Сохраняем результат в CSV файл
     with open("public/locations_data.csv", "w", encoding="utf-8", newline='') as csv_file:
         csv_writer = csv.writer(csv_file)
-        csv_writer.writerow(["id", "lat", "long", "type", "adress", "total_volume", "free_volume"])
+        csv_writer.writerow(["id", "lat", "long", "type", "adress", "total_volume", "free_volume", "purpose"])
 
         # Обработка результатов запроса
         for node in tqdm(result.nodes, desc="Обрабатываем полученые точки"):
@@ -68,9 +68,9 @@ def download_locations(city="Санкт-Петербург"):
             address = get_address(node.lat, node.lon)
             total_volume = get_total_volume(location_type)
             free_volume = get_free_volume(total_volume)
-            # purpose (назначение)
+            purpose = get_purpose(node.tags)
 
-            csv_writer.writerow([location_id, lat, long, location_type, address, total_volume, free_volume])
+            csv_writer.writerow([location_id, lat, long, location_type, address, total_volume, free_volume, purpose])
     print("Точки успешно обработаны")
 
 if __name__ == "__main__":

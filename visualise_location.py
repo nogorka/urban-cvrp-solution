@@ -3,7 +3,11 @@ import pandas as pd
 
 # HTML разметка всплывающего сообщения для маркеров
 def get_html(point):
-    return f"<h3>{point.type}</h3><br>{point.adress}"
+    return f"""
+    <h4>{point.type}: {point.purpose}</h4>
+    <p>{point.free_volume}/{point.total_volume}</p>
+    {point.adress}
+"""
 
 # Чтение данных из файла CSV
 df = pd.read_csv('public/locations_data.csv')
