@@ -10,9 +10,9 @@ def get_html(point):
 """
 
 def get_color(type):
-    if (type == 'outpost'):
+    if type == 'outpost':
         return 'blue'
-    if (type == 'parcel_locker'):
+    if type == 'parcel_locker':
         return 'green'
     return 'red'
 

@@ -1,7 +1,7 @@
 import overpy
 import csv
 from geopy.geocoders import Nominatim
-from tqdm import tqdm  # Добавлен импорт tqdm
+from tqdm import tqdm
 
 geolocator = Nominatim(user_agent="location_lookup")
 def get_address(lat, lon):
