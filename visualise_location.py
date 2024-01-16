@@ -9,6 +9,13 @@ def get_html(point):
     {point.adress}
 """
 
+def get_color(type):
+    if (type == 'outpost'):
+        return 'blue'
+    if (type == 'parcel_locker'):
+        return 'green'
+    return 'red'
+
 # Чтение данных из файла CSV
 df = pd.read_csv('public/locations_data.csv')
 
@@ -20,7 +27,8 @@ my_map = folium.Map(location=map_center, zoom_start=13)
 for index, point in df.iterrows():
     folium.Marker(
         location=[point['lat'], point['long']],
-        popup=get_html(point)
+        popup=get_html(point),
+        icon=folium.Icon(color=get_color(point.type))
     ).add_to(my_map)
 
 
