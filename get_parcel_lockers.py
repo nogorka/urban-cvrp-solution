@@ -1,9 +1,13 @@
+# Импорт необходимых библиотек
 import overpy
 import csv
 from geopy.geocoders import Nominatim
 from tqdm import tqdm
 import random
+import numpy as np
 
+
+# получения адреса по координатам
 geolocator = Nominatim(user_agent="location_lookup")
 def get_address(lat, lon):
     try:
@@ -12,25 +16,48 @@ def get_address(lat, lon):
     except:
         return "Location Decode Error"
 
+
+# определение типа локации на основе тегов
 def get_type(tags):
     return tags.get('amenity') or tags.get('shop') or tags.get('office', 'N/A')
 
+
+# получение назначения локации на основе тегов
 def get_purpose(tags):
     return tags.get('brand') or tags.get('name') or tags.get('operator') or tags.get('description', 'N/A')
 
+
+# генерация случайного числа с нормальным распределением в заданном диапазоне
+def get_number_from_gauss(lower_limit, upper_limit, mean_value, std_deviation):
+    random_value = int(np.random.normal(loc=mean_value, scale=std_deviation))
+    return max(lower_limit, min(random_value, upper_limit))
+
+
+# определение общего объема в зависимости от типа локации
 def get_total_volume(type):
     if type == 'parcel_locker':
         return random.choice([23, 32, 41])
+    if type == 'outpost':
+        return get_number_from_gauss(92, 640, 370, 90)
     return 0
 
+
+# определение свободного объема в зависимости от общего объема
 def get_free_volume(total_volume):
-    return 0
+    if total_volume is None or total_volume == 0:
+        return 0
+
+    mean_value = total_volume / 5 * 3
+    std_deviation = (total_volume - mean_value) / 3
+
+    return get_number_from_gauss(0, total_volume, mean_value, std_deviation)
+
 
 
 def download_locations(city="Санкт-Петербург"):
     api = overpy.Overpass()
 
-    # Формируем запрос для поиска постоматов, ПВЗ и складов
+    # Формирование запроса к Overpass API для поиска постоматов, ПВЗ и складов
     query = f"""
     area["name"="{city}"]->.a;
     (
@@ -53,11 +80,12 @@ def download_locations(city="Санкт-Петербург"):
     """
     print("Подготовка завершена")
 
+    # Получение данных с сервера Overpass API
     result = api.query(query)
 
     print("Данные успешно получены")
 
-   # Сохраняем результат в CSV файл
+    # Сохранение результатов в CSV файл
     with open("public/locations_data.csv", "w", encoding="utf-8", newline='') as csv_file:
         csv_writer = csv.writer(csv_file)
         csv_writer.writerow(["id", "lat", "long", "type", "adress", "total_volume", "free_volume", "purpose"])
@@ -75,6 +103,7 @@ def download_locations(city="Санкт-Петербург"):
 
             csv_writer.writerow([location_id, lat, long, location_type, address, total_volume, free_volume, purpose])
     print("Точки успешно обработаны")
+
 
 if __name__ == "__main__":
     download_locations()
