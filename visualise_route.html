@@ -62,8 +62,12 @@
             });
         }
 
+        const filename = [
+            'public/example_10_points.csv',
+            'public/output_ordered_points.csv'
+        ]
         // Чтение CSV файла
-        fetch('public/example_10_points.csv')
+        fetch(filename[1])
             .then(response => response.text())
             .then(data => visualizePoints(data));
     </script>
