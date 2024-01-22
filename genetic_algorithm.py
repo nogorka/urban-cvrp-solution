@@ -3,6 +3,7 @@ import random
 import csv
 import pandas as pd
 from tqdm import tqdm
+from geopy.distance import geodesic
 
 
 # Чтение точек и преобразование к формату работы { 'id': (lat, long), ....}
@@ -52,7 +53,12 @@ def fitness(route, points):
     total_distance = 0
     for i in range(len(route) - 1):
         # расстояние соседних точек
-        total_distance += distance_manhattan(route[i], route[i + 1], points)
+        # total_distance += distance_euclid(route[i], route[i + 1], points)
+        # total_distance += distance_manhattan(route[i], route[i + 1], points)
+        point1 = points[route[i]]
+        point2 = points[route[i + 1]]
+        total_distance += geodesic(point1, point2).kilometers
+
     return 1 / total_distance
 
 # Скрещивание двух маршрутов, ребенок это часть родителя те маршрута 1 и маршрута 2 (родителя)
@@ -76,26 +82,23 @@ def select_best(population, fitness_values, num_best):
     indices = np.argsort(fitness_values)[-num_best:]
     return [population[i] for i in indices]
 
-# Генетический алгоритм
 def genetic_algorithm(population_size, generations, mutation_rate, points):
     population = generate_initial_population(population_size, points)
 
     for generation in tqdm(range(generations), desc="Genetic Algorithm Progress"):
-        # значение приспособленности поколения в полуляции
+        # Значения приспособленности поколения в полуляции
         fitness_values = [fitness(route, points) for route in population]
 
-        # Выбор 2 лучших родителей?
+        # Выбор 2 лучших родителей
         best_routes = select_best(population, fitness_values, num_best=2)
-
 
         # Скрещивание и мутация для создания новой популяции
         new_population = best_routes
         while len(new_population) < population_size:
-            parent1 = random.choice(best_routes)
-            parent2 = random.choice(best_routes)
+            parent1, parent2 = best_routes[:2]
             child = crossover(parent1, parent2) # скрещивание родителей
             child = mutate(child, mutation_rate) # случайная мутация
-            new_population.append(child)
+            new_population.append(child) # добавление ребенка в новую популяцию
 
         population = new_population
 
@@ -105,11 +108,11 @@ def genetic_algorithm(population_size, generations, mutation_rate, points):
 
 
 if __name__ == "__main__":
-    input_csv = 'public/example_10_points.csv'
+    input_csv = 'public/15_ex.csv'
     output_csv = 'public/output_ordered_points.csv'
 
     points = read_csv_to_dict(input_csv)
-    best_route = genetic_algorithm(population_size=50, generations=1500, mutation_rate=0.2, points=points)
-    print("Оптимальный маршрут готов")
+    best_route = genetic_algorithm(population_size=60, generations=1600, mutation_rate=0.1, points=points)
+    print("\nОптимальный маршрут готов")
 
     reorder_csv(input_csv, output_csv, best_route)
