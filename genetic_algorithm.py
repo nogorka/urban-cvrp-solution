@@ -108,11 +108,11 @@ def genetic_algorithm(population_size, generations, mutation_rate, points):
 
 
 if __name__ == "__main__":
-    input_csv = 'public/15_ex.csv'
-    output_csv = 'public/output_ordered_points.csv'
+    input_csv = 'public/example_routes/10_ex_3.csv'
+    output_csv = 'public/result_routes/10_ex_3.csv'
 
     points = read_csv_to_dict(input_csv)
-    best_route = genetic_algorithm(population_size=60, generations=1600, mutation_rate=0.1, points=points)
+    best_route = genetic_algorithm(population_size=30, generations=600, mutation_rate=0.1, points=points)
     print("\nОптимальный маршрут готов")
 
     reorder_csv(input_csv, output_csv, best_route)
