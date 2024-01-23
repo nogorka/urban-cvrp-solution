@@ -62,8 +62,8 @@
             });
         }
 
-        const filename = 'public/example_routes/10_ex_4.csv'
         // Чтение CSV файла
+        const filename = 'public/optimal_routes/30_ex_12.csv'
         fetch(filename)
             .then(response => response.text())
             .then(data => visualizePoints(data));

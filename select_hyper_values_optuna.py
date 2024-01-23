@@ -1,6 +1,6 @@
 import optuna
 import matplotlib.pyplot as plt
-from genetic_algorithm import read_csv_to_dict, genetic_algorithm, fitness, reorder_csv
+from genetic_algorithm import read_csv_to_dict, genetic_algorithm, fitness
 from optuna.visualization import plot_optimization_history, plot_param_importances
 import plotly.express as px
 
@@ -9,8 +9,7 @@ def objective(trial):
     generations = trial.suggest_int('generations', 5, 2000)
     mutation_rate = trial.suggest_float('mutation_rate', 0.05, 0.5)
 
-
-    input_csv = 'public/30_ex.csv'
+    input_csv = 'public/example_routes/30_ex_9.csv'
     points = read_csv_to_dict(input_csv)
 
     best_route = genetic_algorithm(population_size=population_size,
@@ -51,15 +50,6 @@ if __name__ == "__main__":
     # Получение лучших гиперпараметров
     best_params = study.best_params
     print("Лучшие гиперпараметры:", best_params)
-
-    # Запуск алгоритма с лучшими параметрами для получения оптимального маршрута
-    best_route = genetic_algorithm(population_size=best_params['population_size'],
-                                   generations=best_params['generations'],
-                                   mutation_rate=best_params['mutation_rate'],
-                                   points=points)
-
-    reorder_csv(input_csv, output_csv, best_route)
-    print("\nОптимальный маршрут готов")
 
     best_params_str = ', '.join([f"{key}: {value}" for key, value in best_params.items()])
     fig_history.add_annotation(

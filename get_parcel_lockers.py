@@ -1,4 +1,3 @@
-# Импорт необходимых библиотек
 import overpy
 import csv
 from geopy.geocoders import Nominatim
