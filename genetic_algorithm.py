@@ -63,17 +63,29 @@ def fitness(route, points):
 
 # Скрещивание двух маршрутов, ребенок это часть родителя те маршрута 1 и маршрута 2 (родителя)
 def crossover(parent1, parent2):
-    crossover_point = np.random.randint(1, len(parent1) - 1)
+    prob = []
+    for i in range(len(parent1)):
+        dist = geodesic( points[parent1[i]],  points[parent2[i]]).kilometers
+        # dist = distance_manhattan(parent1[i], parent2[i], points)
+        if dist > 0:
+            prob.append( 1 / dist)
+        else:
+            prob.append(1)
+
+    prob = prob / np.sum(prob) # нормализация вероятностей
+
+    crossover_point = np.random.choice(np.arange(1, len(parent1) + 1), p=prob)
+
     child = parent1[:crossover_point]
     child += [point for point in parent2 if point not in child]
     return child
 
 # Мутация маршрута (случайное изменение маршрута)
 def mutate(route, mutation_rate):
-    for i in range(len(route)):
+    for i in range(len(route) - 1):
         if np.random.rand() < mutation_rate: # элемент случайности
-            j = np.random.randint(len(route))
-            route[i], route[j] = route[j], route[i] # смена мест точек в маршруте
+            j = np.random.randint(i + 1, len(route))
+            route[i:j+1] = route[i:j+1][::-1] # смена отрезков из точек в маршруте
     return route
 
 # Выбор лучших маршрутов
@@ -108,11 +120,13 @@ def genetic_algorithm(population_size, generations, mutation_rate, points):
 
 
 if __name__ == "__main__":
-    input_csv = 'public/example_routes/10_ex_3.csv'
-    output_csv = 'public/result_routes/10_ex_3.csv'
+    files = [ '30_ex_9.csv']
+    for file in files:
+        input_csv = f'public/example_routes/{file}'
+        output_csv = f'public/result_routes/{file}'
 
-    points = read_csv_to_dict(input_csv)
-    best_route = genetic_algorithm(population_size=30, generations=600, mutation_rate=0.1, points=points)
-    print("\nОптимальный маршрут готов")
+        points = read_csv_to_dict(input_csv)
+        best_route = genetic_algorithm(population_size=30, generations=600, mutation_rate=0.1, points=points)
+        print("\nОптимальный маршрут готов")
 
-    reorder_csv(input_csv, output_csv, best_route)
+        reorder_csv(input_csv, output_csv, best_route)
