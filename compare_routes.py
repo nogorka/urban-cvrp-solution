@@ -68,8 +68,12 @@ if __name__ == "__main__":
         optimal_route = get_route(optimal_routes_dir, filename)
         ga_route = get_route(ga_routes_dir, filename)
 
-        error_rates[filename] = levenshtein_distance(optimal_route, ga_route) / len(ga_route)
+        # Прямая и обратная длина на случай если маршрут развернут в другую сторону
+        distance = levenshtein_distance(optimal_route, ga_route) / len(ga_route)
+        reverse_distance = levenshtein_distance(optimal_route, ga_route[::-1]) / len(ga_route)
 
-    print(error_rates)
-    visualize_error_percentages(error_rates)
+        error_rates[filename] = distance if distance < reverse_distance else reverse_distance
+
+    sorted_error_dict = dict(sorted(error_rates.items(), key=lambda item: item[1]))
+    visualize_error_percentages(sorted_error_dict)
 
