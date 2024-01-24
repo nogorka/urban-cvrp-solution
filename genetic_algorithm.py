@@ -5,6 +5,8 @@ import pandas as pd
 from tqdm import tqdm
 from geopy.distance import geodesic
 
+from compare_routes import get_all_filenames
+
 
 # Чтение точек и преобразование к формату работы { 'id': (lat, long), ....}
 def read_csv_to_dict(file_path):
@@ -120,13 +122,14 @@ def genetic_algorithm(population_size, generations, mutation_rate, points):
 
 
 if __name__ == "__main__":
-    files = [ '30_ex_9.csv']
-    for file in files:
+    filenames = get_all_filenames("public/example_routes")
+
+    for file in filenames:
         input_csv = f'public/example_routes/{file}'
         output_csv = f'public/result_routes/{file}'
 
         points = read_csv_to_dict(input_csv)
-        best_route = genetic_algorithm(population_size=30, generations=600, mutation_rate=0.1, points=points)
+        best_route = genetic_algorithm(population_size=10, generations=300, mutation_rate=0.1, points=points)
         print("\nОптимальный маршрут готов")
 
         reorder_csv(input_csv, output_csv, best_route)
