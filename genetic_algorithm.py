@@ -41,37 +41,34 @@ def generate_initial_population(population_size, points):
         population.append(route)
     return population
 
-# Вычисление расстояния между двумя точками (Евклидово, по прямой)
-def distance_euclid(point1, point2, points):
-    x1, y1 = points[point1]
-    x2, y2 = points[point2]
-    return np.sqrt((x2 - x1)**2 + (y2 - y1)**2)
+# Вычисление матрицы расстояний всех точек со всеми
+def precompute_distances(points):
+    num_points = len(points)
+    distances = np.zeros((num_points, num_points))
+    point_indexes = {}
+    for i, (id1, coord_tuple1) in enumerate(points.items()):
+        point_indexes[id1] = i
+        for j, (_, coord_tuple2) in enumerate(points.items()):
+            distances[i, j] = geodesic(coord_tuple1, coord_tuple2).kilometers
+    return distances, point_indexes
 
-# Вычисление расстояния между двумя точками (Манхэтанское, гор. кварталы)
-def distance_manhattan(point1, point2, points):
-    x1, y1 = points[point1]
-    x2, y2 = points[point2]
-    return np.abs(x2 - x1) + np.abs(y2 - y1)
+def get_distance_from_matrix(point1, point2):
+    point_index1 = point_indexes[point1]
+    point_index2 = point_indexes[point2]
+    return distances[point_index1, point_index2] #use precompiled distances
 
 # Вычисление приспособленности маршрута (меньше значение - лучше)
-def fitness(route, points):
+def fitness(route):
     total_distance = 0
     for i in range(len(route) - 1):
-        # расстояние соседних точек
-        # total_distance += distance_euclid(route[i], route[i + 1], points)
-        # total_distance += distance_manhattan(route[i], route[i + 1], points)
-        point1 = points[route[i]]
-        point2 = points[route[i + 1]]
-        total_distance += geodesic(point1, point2).kilometers
-
+        total_distance += get_distance_from_matrix(route[i], route[i + 1])
     return 1 / total_distance
 
 # Скрещивание двух маршрутов, ребенок это часть родителя те маршрута 1 и маршрута 2 (родителя)
 def crossover(parent1, parent2):
     prob = []
     for i in range(len(parent1)):
-        dist = geodesic( points[parent1[i]],  points[parent2[i]]).kilometers
-        # dist = distance_manhattan(parent1[i], parent2[i], points)
+        dist = get_distance_from_matrix(parent1[i],  parent2[i])
         if dist > 0:
             prob.append( 1 / dist)
         else:
@@ -104,7 +101,7 @@ def genetic_algorithm(population_size, generations, mutation_rate, points):
 
     for generation in tqdm(range(generations), desc="Genetic Algorithm Progress"):
         # Значения приспособленности поколения в полуляции
-        fitness_values = [fitness(route, points) for route in population]
+        fitness_values = [fitness(route) for route in population]
 
         # Выбор 2 лучших родителей
         best_routes = select_best(population, fitness_values, num_best=2)
@@ -130,10 +127,11 @@ if __name__ == "__main__":
     # for file in filenames:
     #     input_csv = f'public/example_routes/{file}'
     #     output_csv = f'public/result_routes/{file}'
-    file = '30_ex_9.csv'
+    file = '30_ex_10.csv'
     input_csv = f'public/example_routes/{file}'
     output_csv = f'public/result_routes/{file}'
     points = read_csv_to_dict(input_csv)
+    distances, point_indexes = precompute_distances(points)
     best_route = genetic_algorithm(population_size=10, generations=300, mutation_rate=0.1, points=points)
     print("\nОптимальный маршрут готов")
 
