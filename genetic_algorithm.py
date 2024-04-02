@@ -1,32 +1,8 @@
 import numpy as np
-import random
-import csv
-import pandas as pd
 from tqdm import tqdm
 from geopy.distance import geodesic
 
-from compare_routes import get_all_filenames
-
-
-# Чтение точек и преобразование к формату работы { 'id': (lat, long), ....}
-def read_csv_to_dict(file_path):
-    data_dict = {}
-
-    with open(file_path, newline='', encoding='utf-8') as csvfile:
-        reader = csv.DictReader(csvfile)
-        for row in reader:
-            # Преобразуем значения широты и долготы в кортеж
-            data_dict[row['id']] = (float(row['lat']), float(row['long']))
-
-    return data_dict
-
-# Сопоставлении ключей и переупорядочивания строк в DataFrame
-def reorder_csv(input_csv, output_csv, keys):
-    df = pd.read_csv(input_csv)
-    df['id'] = df['id'].astype(str)
-    df_selected = df[df['id'].isin(keys)]
-    df_reordered = df_selected.set_index('id').loc[keys].reset_index()
-    df_reordered.to_csv(output_csv, index=False)
+from input_preprocess import get_all_filenames, read_csv_to_dict, reorder_csv
 
 
 # Генерация начальной популяции, где одна особь это рандомный маршрут
@@ -122,17 +98,18 @@ def genetic_algorithm(population_size, generations, mutation_rate):
 
 
 if __name__ == "__main__":
-    # filenames = get_all_filenames("public/example_routes")
+    # file = '30_ex_10.csv'
 
-    # for file in filenames:
-    #     input_csv = f'public/example_routes/{file}'
-    #     output_csv = f'public/result_routes/{file}'
-    file = '30_ex_10.csv'
-    input_csv = f'public/example_routes/{file}'
-    output_csv = f'public/result_routes/{file}'
-    POINTS = read_csv_to_dict(input_csv)
-    DISTANCE_MATRIX, POINT_INDEX_DICT = precompute_distances()
-    best_route = genetic_algorithm(population_size=10, generations=300, mutation_rate=0.1)
-    print("\nОптимальный маршрут готов")
+    filenames = get_all_filenames("public/example_routes")
+    for file in filenames:
 
-    reorder_csv(input_csv, output_csv, best_route)
+        input_csv = f'public/example_routes/{file}'
+        output_csv = f'public/result_routes/{file}'
+
+        POINTS = read_csv_to_dict(input_csv)
+        DISTANCE_MATRIX, POINT_INDEX_DICT = precompute_distances()
+
+        best_route = genetic_algorithm(population_size=10, generations=300, mutation_rate=0.1)
+        print("\nОптимальный маршрут готов")
+
+        reorder_csv(input_csv, output_csv, best_route)

@@ -1,26 +1,6 @@
-import csv
 import numpy as np
-import os
 import matplotlib.pyplot as plt
-
-
-def get_all_filenames(directory_path):
-    filenames = []
-    for filename in os.listdir(directory_path):
-        if os.path.isfile(os.path.join(directory_path, filename)):
-            filenames.append(filename)
-    return filenames
-
-def load_csv(file_path):
-    with open(file_path, 'r', encoding='utf-8') as csv_file:
-        csv_reader = csv.DictReader(csv_file)
-        data = [row for row in csv_reader]
-    return data
-
-def get_route(dirname, filename):
-    path = os.path.join('public', dirname, filename)
-    df = load_csv(path)
-    return np.array([row['id'] for row in df])
+from input_preprocess import get_all_filenames, get_route
 
 def levenshtein_distance(str1, str2):
     len_str1 = len(str1) + 1
