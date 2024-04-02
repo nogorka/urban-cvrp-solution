@@ -34,7 +34,10 @@ def generate_initial_population(population_size, points):
     population = []
     for _ in range(population_size):
         route = list(points.keys())
+        first_point = route[0]
+        route.pop(0)
         np.random.shuffle(route)
+        route.insert(0, first_point)
         population.append(route)
     return population
 
@@ -84,7 +87,7 @@ def crossover(parent1, parent2):
 
 # Мутация маршрута (случайное изменение маршрута)
 def mutate(route, mutation_rate):
-    for i in range(len(route) - 1):
+    for i in range(1, len(route) - 1):  # убираем первую точки из отрезков доступных для мутации
         if np.random.rand() < mutation_rate: # элемент случайности
             j = np.random.randint(i + 1, len(route))
             route[i:j+1] = route[i:j+1][::-1] # смена отрезков из точек в маршруте
@@ -122,14 +125,16 @@ def genetic_algorithm(population_size, generations, mutation_rate, points):
 
 
 if __name__ == "__main__":
-    filenames = get_all_filenames("public/example_routes")
+    # filenames = get_all_filenames("public/example_routes")
 
-    for file in filenames:
-        input_csv = f'public/example_routes/{file}'
-        output_csv = f'public/result_routes/{file}'
+    # for file in filenames:
+    #     input_csv = f'public/example_routes/{file}'
+    #     output_csv = f'public/result_routes/{file}'
+    file = '30_ex_9.csv'
+    input_csv = f'public/example_routes/{file}'
+    output_csv = f'public/result_routes/{file}'
+    points = read_csv_to_dict(input_csv)
+    best_route = genetic_algorithm(population_size=10, generations=300, mutation_rate=0.1, points=points)
+    print("\nОптимальный маршрут готов")
 
-        points = read_csv_to_dict(input_csv)
-        best_route = genetic_algorithm(population_size=10, generations=300, mutation_rate=0.1, points=points)
-        print("\nОптимальный маршрут готов")
-
-        reorder_csv(input_csv, output_csv, best_route)
+    reorder_csv(input_csv, output_csv, best_route)
