@@ -30,10 +30,10 @@ def reorder_csv(input_csv, output_csv, keys):
 
 
 # Генерация начальной популяции, где одна особь это рандомный маршрут
-def generate_initial_population(population_size, points):
+def generate_initial_population(population_size):
     population = []
     for _ in range(population_size):
-        route = list(points.keys())
+        route = list(POINTS.keys())
         first_point = route[0]
         route.pop(0)
         np.random.shuffle(route)
@@ -42,20 +42,20 @@ def generate_initial_population(population_size, points):
     return population
 
 # Вычисление матрицы расстояний всех точек со всеми
-def precompute_distances(points):
-    num_points = len(points)
+def precompute_distances():
+    num_points = len(POINTS)
     distances = np.zeros((num_points, num_points))
     point_indexes = {}
-    for i, (id1, coord_tuple1) in enumerate(points.items()):
+    for i, (id1, coord_tuple1) in enumerate(POINTS.items()):
         point_indexes[id1] = i
-        for j, (_, coord_tuple2) in enumerate(points.items()):
+        for j, (_, coord_tuple2) in enumerate(POINTS.items()):
             distances[i, j] = geodesic(coord_tuple1, coord_tuple2).kilometers
     return distances, point_indexes
 
 def get_distance_from_matrix(point1, point2):
-    point_index1 = point_indexes[point1]
-    point_index2 = point_indexes[point2]
-    return distances[point_index1, point_index2] #use precompiled distances
+    point_index1 = POINT_INDEX_DICT[point1]
+    point_index2 = POINT_INDEX_DICT[point2]
+    return DISTANCE_MATRIX[point_index1, point_index2] #use precompiled distances
 
 # Вычисление приспособленности маршрута (меньше значение - лучше)
 def fitness(route):
@@ -96,8 +96,8 @@ def select_best(population, fitness_values, num_best):
     indices = np.argsort(fitness_values)[-num_best:]
     return [population[i] for i in indices]
 
-def genetic_algorithm(population_size, generations, mutation_rate, points):
-    population = generate_initial_population(population_size, points)
+def genetic_algorithm(population_size, generations, mutation_rate):
+    population = generate_initial_population(population_size)
 
     for generation in tqdm(range(generations), desc="Genetic Algorithm Progress"):
         # Значения приспособленности поколения в полуляции
@@ -130,9 +130,9 @@ if __name__ == "__main__":
     file = '30_ex_10.csv'
     input_csv = f'public/example_routes/{file}'
     output_csv = f'public/result_routes/{file}'
-    points = read_csv_to_dict(input_csv)
-    distances, point_indexes = precompute_distances(points)
-    best_route = genetic_algorithm(population_size=10, generations=300, mutation_rate=0.1, points=points)
+    POINTS = read_csv_to_dict(input_csv)
+    DISTANCE_MATRIX, POINT_INDEX_DICT = precompute_distances()
+    best_route = genetic_algorithm(population_size=10, generations=300, mutation_rate=0.1)
     print("\nОптимальный маршрут готов")
 
     reorder_csv(input_csv, output_csv, best_route)
