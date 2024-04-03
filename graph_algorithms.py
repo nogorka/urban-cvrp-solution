@@ -7,26 +7,25 @@ import time
 import matplotlib.pyplot as plt
 
 # Сопоставление гео координат узлу на графе
-def get_node(long, lat):
-    return ox.distance.nearest_nodes(CITY_GRAPH, X=long, Y=lat)
+def get_node(coords, G):
+    lat, long = coords
+    return ox.distance.nearest_nodes(G, X=long, Y=lat)
 
 # Подсчет минимального пути по Диикстре
-def calculate_distance(node1, node2):
-    shortest_path = nx.shortest_path(CITY_GRAPH_NX, source=node1, target=node2, weight='length')
-    total_distance = sum(CITY_GRAPH_NX[shortest_path[i]][shortest_path[i+1]]['length'] for i in range(len(shortest_path)-1))
+def calculate_distance(node1, node2, nxG):
+    shortest_path = nx.shortest_path(nxG, source=node1, target=node2, weight='length')
+    total_distance = sum(nxG[shortest_path[i]][shortest_path[i+1]]['length'] for i in range(len(shortest_path)-1))
     return round(total_distance)
-
 
 # Скачивание графа в файл
 def download_graph(city_name, filename):
-    print("Start download")
+    print("Downloading new mapa data...")
     G = ox.graph_from_place(city_name, network_type="drive")
     with open(filename, 'wb') as file:
         pickle.dump(G, file)
 
 # Чтение графа из файла
 def read_graph(filename):
-    print("Start read")
     with open(filename, 'rb') as file:
         G = pickle.load(file)
     return G
@@ -46,31 +45,29 @@ def get_graph(city_name, filename):
     return read_graph(filename)
 
 if __name__ == "__main__":
-    start_time = time.time()
 
     city_name = "Saint Petersburg, Russia"
     filename = "road_network_graph.pickle"
 
-    CITY_GRAPH = get_graph(city_name, filename)
-    CITY_GRAPH_NX = nx.Graph(CITY_GRAPH)
+    city_graph = get_graph(city_name, filename)
+    city_graph_nx = nx.Graph(city_graph)
 
     location1, location2 = (59.9206972,30.286013),(59.9496138,30.2264708)
+    start_time = time.time()
 
-    node1 = get_node(location1[1], location1[0])
-    node2 = get_node(location2[1], location2[0])
-    print(node1, node2)
-
-    distance = calculate_distance(node1, node2)
-    print("Distance between locations:", distance, "meters")
+    node1 = get_node(location1, city_graph)
+    node2 = get_node(location2, city_graph)
+    distance = calculate_distance(node1, node2, city_graph_nx)
 
     end_time = time.time()
     elapsed_time = end_time - start_time
+    print("Distance between locations:", distance, "meters")
     print("Elapsed time:", elapsed_time, "seconds")
 
     # рисование графа и двух точек на нем
-    fig, ax = ox.plot_graph(CITY_GRAPH, figsize=(10, 10), show=False, close=False, edge_color='gray')
+    fig, ax = ox.plot_graph(city_graph, figsize=(10, 10), show=False, close=False, edge_color='gray')
 
-    node_positions = {node: (CITY_GRAPH.nodes[node]['x'], CITY_GRAPH.nodes[node]['y']) for node in CITY_GRAPH.nodes()}
+    node_positions = {node: (city_graph.nodes[node]['x'], city_graph.nodes[node]['y']) for node in city_graph.nodes()}
 
     location1_x, location1_y = node_positions[node1]
     location2_x, location2_y = node_positions[node2]
