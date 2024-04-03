@@ -4,6 +4,7 @@ import os
 import csv
 import pandas as pd
 
+# Получение списка всех файлов в директории
 def get_all_filenames(directory_path):
     filenames = []
     for filename in os.listdir(directory_path):
@@ -11,12 +12,14 @@ def get_all_filenames(directory_path):
             filenames.append(filename)
     return filenames
 
+# Чтение csv из файла
 def load_csv(file_path):
     with open(file_path, 'r', encoding='utf-8') as csv_file:
         csv_reader = csv.DictReader(csv_file)
         data = [row for row in csv_reader]
     return data
 
+# Вытаскивание маршрута из файла
 def get_route(dirname, filename):
     path = os.path.join('public', dirname, filename)
     df = load_csv(path)
