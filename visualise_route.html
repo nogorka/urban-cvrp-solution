@@ -7,8 +7,26 @@
     <title>CSV Visualization</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
     <style>
+        html,
+        body {
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+            background-repeat: no-repeat;
+            background-position: center center;
+            background-size: cover;
+        }
+
+        * {
+            position: relative;
+            box-sizing: border-box;
+            padding: 0;
+            margin: 0;
+            font-family: "Helvetica Neue", "Segoe UI", helvetica, verdana, sans-serif;
+        }
+
         #map {
-            height: 500px;
+            height: 100%;
         }
     </style>
 </head>
