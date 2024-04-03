@@ -4,8 +4,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CSV Visualization</title>
+    <title>CSV Visualization with Route and Destinations</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/leaflet-routing-machine/3.2.12/leaflet-routing-machine.css" />
     <style>
         html,
         body {
@@ -28,6 +30,14 @@
         #map {
             height: 100%;
         }
+
+        .destination-marker {
+            color: #000;
+            font-size: 14px;
+            font-weight: bold;
+            text-align: center;
+            line-height: 14px;
+        }
     </style>
 </head>
 
@@ -37,6 +47,8 @@
 
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
+    <script
+        src="https://cdnjs.cloudflare.com/ajax/libs/leaflet-routing-machine/3.2.12/leaflet-routing-machine.js"></script>
 
     <script>
         // Загрузка CSV файла и визуализация точек
@@ -49,6 +61,7 @@
             }).addTo(map);
 
             var points = [];
+            var waypoints = [];
 
             // Чтение CSV данных
             Papa.parse(csvData, {
@@ -57,21 +70,33 @@
                 skipEmptyLines: true,
                 complete: function (results) {
                     // Обработка каждой строки CSV
-                    results.data.forEach(function (row) {
+                    results.data.forEach(function (row, index) {
                         var lat = parseFloat(row.lat);
                         var lon = parseFloat(row.long);
 
                         // Добавление точек на карту
                         var marker = L.marker([lat, lon]).addTo(map);
                         points.push(marker.getLatLng());
+
+                        // Создание точек маршрута
+                        waypoints.push(L.latLng(lat, lon));
+
+                        // Добавление номера к маркеру
+                        var numberMarker = L.divIcon({
+                            className: 'destination-marker',
+                            html: index + 1
+                        });
+
+                        L.marker([lat, lon], {icon: numberMarker}).addTo(map);
                     });
 
                     // Соединение точек линиями
                     if (points.length > 1) {
-                        var polyline = L.polyline(points, {color: 'red'}).addTo(map);
-
-                        // Автоматическое масштабирование карты к области маркеров
-                        map.fitBounds(polyline.getBounds());
+                        // Построение маршрута
+                        L.Routing.control({
+                            waypoints: waypoints,
+                            routeWhileDragging: true
+                        }).addTo(map);
                     } else if (points.length === 1) {
                         // Если всего одна точка, масштабируем карту к этой точке
                         map.setView(points[0], 15);
@@ -81,7 +106,7 @@
         }
 
         // Чтение CSV файла
-        const filename = 'public/optimal_routes/30_ex_12.csv'
+        const filename = 'public/result_routes/30_ex_9.csv'
         fetch(filename)
             .then(response => response.text())
             .then(data => visualizePoints(data));
