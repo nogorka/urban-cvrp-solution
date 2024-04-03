@@ -22,9 +22,10 @@ def precompute_distances():
     num_points = len(POINTS)
     distances = np.zeros((num_points, num_points))
     point_indexes = {}
-    for i, (id1, coord_tuple1) in enumerate(POINTS.items()):
+    enum_points = list(enumerate(POINTS.items()))
+    for i, (id1, coord_tuple1) in tqdm(enum_points, desc="Precompute Progress"):
         point_indexes[id1] = i
-        for j, (_, coord_tuple2) in enumerate(POINTS.items()):
+        for j, (_, coord_tuple2) in enum_points:
             distances[i, j] = geodesic(coord_tuple1, coord_tuple2).kilometers
     return distances, point_indexes
 
