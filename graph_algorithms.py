@@ -11,7 +11,8 @@ def get_node(coords, G):
     return ox.distance.nearest_nodes(G, X=coords[1], Y=coords[0])
 
 def get_node_all(coords_dct, G):
-    return { id: get_node(coords, G) for (id, coords) in coords_dct.items()}
+    return { id: { "node": get_node(coords, G), "coords": coords }
+            for (id, coords) in coords_dct.items()}
 
 # Подсчет минимального пути по Диикстре
 def calculate_distance(node1, node2, nxG):

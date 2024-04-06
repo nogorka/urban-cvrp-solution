@@ -4,7 +4,7 @@ from geopy.distance import geodesic
 import networkx as nx
 
 from input_preprocess import get_all_filenames, read_csv_to_dict, reorder_csv
-from graph_algorithms import calculate_distance, get_node, get_graph
+from graph_algorithms import calculate_distance, get_node, get_graph, get_node_all
 
 # Генерация начальной популяции, где одна особь это рандомный маршрут
 # изначальная структура данных (dict) не позволяют хранить закальцованный
@@ -14,7 +14,7 @@ from graph_algorithms import calculate_distance, get_node, get_graph
 def generate_initial_population(population_size):
     population = []
     for _ in range(population_size):
-        route = list(POINTS.keys())
+        route = list(NODE_POINTS.keys())
         first_point, last_point = route[0], route[0]
         route.pop(0)
         np.random.shuffle(route)
@@ -23,23 +23,20 @@ def generate_initial_population(population_size):
         population.append(route)
     return population
 
-# Вычисление матрицы расстояний всех точек со всеми
-def precompute_distances(city_graph, graph_nx):
-    num_points = len(POINTS)
+# Вычисление матрицы расстояний всех точек со всеми,
+# считается диагональ, заполняется полностью
+def precompute_distances(graph_nx):
+    num_points = len(NODE_POINTS)
     distances = np.zeros((num_points, num_points))
     point_indexes = {}
-    enum_points = list(enumerate(POINTS.items()))
+    enum_points = list(enumerate(NODE_POINTS.items()))
 
-    for i, (id1, coord_tuple1) in tqdm(enum_points, desc="Precompute Progress"):
+    for i, (id1, dct1) in tqdm(enum_points, desc="Precompute Progress"):
         point_indexes[id1] = i
         for j in range(i+1, num_points):  # Fill only the upper triangular part
-            _, coord_tuple2 = enum_points[j][1]
-            node1, node2 = get_node(coord_tuple1, city_graph), get_node(coord_tuple2, city_graph)
-            distances[i, j] = calculate_distance(node1, node2, graph_nx)
-
-            # Since the distance matrix is symmetric, also fill the corresponding entry in the lower triangular part
+            _, dct2 = enum_points[j][1]
+            distances[i, j] = calculate_distance(dct1['node'], dct2['node'], graph_nx)
             distances[j, i] = distances[i, j]
-
     return distances, point_indexes
 
 def get_distance_from_matrix(point1, point2):
@@ -76,6 +73,7 @@ def crossover(parent1, parent2):
     child += [point for point in parent2 if point not in child]
     child += parent1[-1:]
     return child
+
 # Мутация маршрута (случайное изменение маршрута)
 def mutate(route, mutation_rate):
     for i in range(1, len(route) - 2):  # убираем первую и последнюю точки из отрезков доступных для мутации
@@ -121,7 +119,7 @@ if __name__ == "__main__":
 
     city_graph = get_graph(city_name, graph_filename)
     graph_nx = nx.Graph(city_graph)
-    file = '10_ex_4.csv'
+    file = '30_ex_12.csv'
 
     # filenames = get_all_filenames("public/example_routes")
     # for file in filenames:
@@ -129,8 +127,9 @@ if __name__ == "__main__":
     input_csv = f'public/example_routes/{file}'
     output_csv = f'public/result_routes/{file}'
 
-    POINTS = read_csv_to_dict(input_csv)
-    DISTANCE_MATRIX, POINT_INDEX_DICT = precompute_distances(city_graph, graph_nx)
+    points = read_csv_to_dict(input_csv)
+    NODE_POINTS = get_node_all(points, city_graph)
+    DISTANCE_MATRIX, POINT_INDEX_DICT = precompute_distances(graph_nx)
 
     best_route = genetic_algorithm(population_size=10, generations=300, mutation_rate=0.1)
     print("\nОптимальный маршрут готов")
