@@ -7,14 +7,19 @@ from input_preprocess import get_all_filenames, read_csv_to_dict, reorder_csv
 from graph_algorithms import calculate_distance, get_node, get_graph
 
 # Генерация начальной популяции, где одна особь это рандомный маршрут
+# изначальная структура данных (dict) не позволяют хранить закальцованный
+# маршрут, поэтому последняя точка добавляется искуственно.
+# Они должны совпадать тк машина доkжна вернуться назад на склад
+
 def generate_initial_population(population_size):
     population = []
     for _ in range(population_size):
         route = list(POINTS.keys())
-        first_point = route[0]
+        first_point, last_point = route[0], route[0]
         route.pop(0)
         np.random.shuffle(route)
         route.insert(0, first_point)
+        route.append(last_point)
         population.append(route)
     return population
 
@@ -28,7 +33,7 @@ def precompute_distances(city_graph, graph_nx):
     for i, (id1, coord_tuple1) in tqdm(enum_points, desc="Precompute Progress"):
         point_indexes[id1] = i
         for j in range(i+1, num_points):  # Fill only the upper triangular part
-            id2, coord_tuple2 = enum_points[j][1]
+            _, coord_tuple2 = enum_points[j][1]
             node1, node2 = get_node(coord_tuple1, city_graph), get_node(coord_tuple2, city_graph)
             distances[i, j] = calculate_distance(node1, node2, graph_nx)
 
@@ -51,6 +56,9 @@ def fitness(route):
 def crossover(parent1, parent2):
     prob = []
     for i in range(len(parent1)):
+        # Если расстояние больше 0, оно используется в качестве вероятности
+        # (чем меньше расстояние, тем выше вероятность). Если расстояние равно 0,
+        # устанавливается вероятность 1 (это предотвращает деление на ноль).
         dist = get_distance_from_matrix(parent1[i],  parent2[i])
         if dist > 0:
             prob.append( 1 / dist)
@@ -61,15 +69,18 @@ def crossover(parent1, parent2):
 
     crossover_point = np.random.choice(np.arange(1, len(parent1) + 1), p=prob)
 
+    if crossover_point >= len(parent1) - 1:
+        crossover_point = len(parent1) - 1
+
     child = parent1[:crossover_point]
     child += [point for point in parent2 if point not in child]
+    child += parent1[-1:]
     return child
-
 # Мутация маршрута (случайное изменение маршрута)
 def mutate(route, mutation_rate):
-    for i in range(1, len(route) - 1):  # убираем первую точки из отрезков доступных для мутации
+    for i in range(1, len(route) - 2):  # убираем первую и последнюю точки из отрезков доступных для мутации
         if np.random.rand() < mutation_rate: # элемент случайности
-            j = np.random.randint(i + 1, len(route))
+            j = np.random.randint(i + 1, len(route) - 1)
             route[i:j+1] = route[i:j+1][::-1] # смена отрезков из точек в маршруте
     return route
 
