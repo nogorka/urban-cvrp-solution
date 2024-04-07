@@ -5,6 +5,8 @@ import datetime
 import os
 import time
 import matplotlib.pyplot as plt
+import numpy as np
+from input_preprocess import read_csv_to_strct
 
 # Сопоставление гео координат узлу на графе
 def get_node(coords, G):
@@ -13,6 +15,12 @@ def get_node(coords, G):
 def get_node_all(coords_dct, G):
     return { id: { "node": get_node(coords, G), "coords": coords }
             for (id, coords) in coords_dct.items()}
+
+def set_node_strct_all(strct, G):
+    lat_long_tuples = np.column_stack((strct['lat'], strct['long']))
+    nodes = np.apply_along_axis(lambda x: get_node(tuple(x), G), 1, lat_long_tuples)
+    strct['node'] = nodes
+    return strct
 
 # Подсчет минимального пути по Диикстре
 def calculate_distance(node1, node2, nxG):
@@ -68,7 +76,9 @@ if __name__ == "__main__":
 
     city_graph = get_graph(city_name, filename)
     city_graph_nx = nx.Graph(city_graph)
-    MST = nx.minimum_spanning_tree(city_graph_nx)
+
+    init_data = read_csv_to_strct('public/example_routes/10_ex_1.csv')
+    full_data = set_node_strct_all(init_data, city_graph)
 
     locations = {'1st':(59.9206972,30.286013),
                  '2nd':(59.9496138,30.2264708),
@@ -77,14 +87,14 @@ if __name__ == "__main__":
     location1, location2 = locations['1st'], locations['2nd']
     start_time = time.time()
 
-    node1 = get_node(location1, city_graph)
-    node2 = get_node(location2, city_graph)
+    node1 = full_data[full_data['id'] == 2216518883]['node'][0]
+    node2 = full_data[full_data['id'] == 11169616069]['node'][0]
     distance = calculate_distance(node1, node2, city_graph_nx)
     end_time = time.time()
-    print("Elapsed time:", end_time - start_time, "seconds")
+    print("Elapsed time:", (end_time - start_time) * 1000, "milseconds")
     print("Distance between locations:", distance, "meters")
 
-    nodes_indexes = get_node_all(locations, city_graph)
+    # print(nodes_indexes[nodes_indexes['id' ] == 1234]['node'])
 
     optimize_graph_nx(city_graph)
     # # рисование графа и двух точек на нем

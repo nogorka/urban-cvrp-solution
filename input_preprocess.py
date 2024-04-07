@@ -37,10 +37,29 @@ def read_csv_to_dict(file_path):
 
     return data_dict
 
+# Чтение и преобразование к структурному массиву numpy [it, id, node, lat, long]
+def read_csv_to_strct(file_path):
+    dtype = [('it', '<i4'), ('id', 'i8'), ('node', 'i8'), ('lat', float), ('long', float)]
+    data_list = []
+
+    with open(file_path, newline='', encoding='utf-8') as csvfile:
+        reader = csv.DictReader(csvfile)
+        for i, row in enumerate(reader):
+            data_list.append((i, row['id'], 0, float(row['lat']), float(row['long'])))
+
+    data_array = np.array(data_list, dtype=dtype)
+
+    return data_array
+
 # Сопоставлении ключей и переупорядочивания строк в DataFrame
-def reorder_csv(input_csv, output_csv, keys):
+def reorder_csv(input_csv, output_csv, keys, type='strct'):
     df = pd.read_csv(input_csv)
-    df['id'] = df['id'].astype(str)
+    if type == 'dict':
+        df['id'] = df['id'].astype(str)
     df_selected = df[df['id'].isin(keys)]
     df_reordered = df_selected.set_index('id').loc[keys].reset_index()
     df_reordered.to_csv(output_csv, index=False)
+
+if __name__ == "__main__":
+    d = read_csv_to_strct('public/example_routes/10_ex_1.csv')
+    print(d['lat'])

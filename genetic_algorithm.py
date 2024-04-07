@@ -3,18 +3,22 @@ from tqdm import tqdm
 from geopy.distance import geodesic
 import networkx as nx
 
-from input_preprocess import get_all_filenames, read_csv_to_dict, reorder_csv
-from graph_algorithms import calculate_distance, get_graph, get_node_all, optimize_graph_nx
+from input_preprocess import get_all_filenames, reorder_csv, read_csv_to_dict, read_csv_to_strct
+from graph_algorithms import calculate_distance, get_graph, get_node_all, set_node_strct_all, optimize_graph_nx
 
 # Генерация начальной популяции, где одна особь это рандомный маршрут
 # изначальная структура данных (dict) не позволяют хранить закальцованный
 # маршрут, поэтому последняя точка добавляется искуственно.
 # Они должны совпадать тк машина доkжна вернуться назад на склад
 
-def generate_initial_population(population_size):
+def generate_initial_population(population_size, type='strct'):
     population = []
     for _ in range(population_size):
-        route = list(NODE_POINTS.keys())
+        route = []
+        if type == 'strct':
+            route = list(NODE_POINTS['id'])
+        else:
+            route = list(NODE_POINTS.keys())
         first_point, last_point = route[0], route[0]
         route.pop(0)
         np.random.shuffle(route)
@@ -25,28 +29,43 @@ def generate_initial_population(population_size):
 
 # Вычисление матрицы расстояний всех точек со всеми,
 # считается диагональ, заполняется полностью
-def precompute_distances(graph_nx):
+def precompute_distances(graph_nx, type='strct'):
     num_points = len(NODE_POINTS)
     distances = np.zeros((num_points, num_points))
-    point_indexes = {}
-    enum_points = list(enumerate(NODE_POINTS.items()))
 
-    for i, (id1, dct1) in tqdm(enum_points, desc="Precompute Progress"):
-        point_indexes[id1] = i
-        for j in range(i+1, num_points):  # Fill only the upper triangular part
-            _, dct2 = enum_points[j][1]
-            distances[i, j] = calculate_distance(dct1['node'], dct2['node'], graph_nx)
-            distances[j, i] = distances[i, j]
-    return distances, point_indexes
+    if type == 'strct':
+        for (it, _, node, _, _) in tqdm(NODE_POINTS, desc="Precompute Progress"):
+            for j in range(it+1, num_points):  # Fill only the upper triangular part
+                node2 = NODE_POINTS[j]['node']
+                distances[it, j] = calculate_distance(node, node2, graph_nx)
+                distances[j, it] = distances[it, j]
+        return distances, None
+    else:
+        point_indexes = {}
+        enum_points = list(enumerate(NODE_POINTS.items()))
 
-def get_distance_from_matrix(point1, point2):
-    point_index1 = POINT_INDEX_DICT[point1]
-    point_index2 = POINT_INDEX_DICT[point2]
-    return DISTANCE_MATRIX[point_index1, point_index2] #use precompiled distances
+        for i, (id1, dct1) in tqdm(enum_points, desc="Precompute Progress"):
+            point_indexes[id1] = i
+            for j in range(i+1, num_points):  # Fill only the upper triangular part
+                _, dct2 = enum_points[j][1]
+                distances[i, j] = calculate_distance(dct1['node'], dct2['node'], graph_nx)
+                distances[j, i] = distances[i, j]
+        return distances, point_indexes
+
+def get_distance_from_matrix(point1, point2, type='strct'):
+    if type == 'strct':
+        point_index1 = NODE_POINTS[NODE_POINTS['id'] == point1]['it'][0]
+        point_index2 = NODE_POINTS[NODE_POINTS['id'] == point2]['it'][0]
+        return DISTANCE_MATRIX[point_index1, point_index2]
+
+    else:
+        point_index1 = POINT_INDEX_DICT[point1]
+        point_index2 = POINT_INDEX_DICT[point2]
+        return DISTANCE_MATRIX[point_index1, point_index2]
 
 # Вычисление приспособленности маршрута (меньше значение - лучше)
 def fitness(route):
-    total_distance = np.sum([get_distance_from_matrix(route[i], route[i + 1]) for i in range(len(route) - 1)])
+    total_distance = np.sum([get_distance_from_matrix(route[i], route[i + 1], type=TYPE) for i in range(len(route) - 1)])
     return 1 / total_distance
 
 # Скрещивание двух маршрутов, ребенок это часть родителя те маршрута 1 и маршрута 2 (родителя)
@@ -56,7 +75,7 @@ def crossover(parent1, parent2):
         # Если расстояние больше 0, оно используется в качестве вероятности
         # (чем меньше расстояние, тем выше вероятность). Если расстояние равно 0,
         # устанавливается вероятность 1 (это предотвращает деление на ноль).
-        dist = get_distance_from_matrix(parent1[i],  parent2[i])
+        dist = get_distance_from_matrix(parent1[i],  parent2[i], type=TYPE)
         if dist > 0:
             prob.append( 1 / dist)
         else:
@@ -89,7 +108,7 @@ def select_best(population, fitness_values, num_best):
     return [population[i] for i in indices]
 
 def genetic_algorithm(population_size, generations, mutation_rate):
-    population = generate_initial_population(population_size)
+    population = generate_initial_population(population_size, type=TYPE)
 
     for generation in tqdm(range(generations), desc="Genetic Algorithm Progress"):
         # Значения приспособленности поколения в полуляции
@@ -116,6 +135,8 @@ def genetic_algorithm(population_size, generations, mutation_rate):
 if __name__ == "__main__":
     city_name = "Saint Petersburg, Russia"
     graph_filename = "road_network_graph.pickle"
+    TYPE = 'dict'
+
 
     city_graph = get_graph(city_name, graph_filename)
     graph_nx = optimize_graph_nx(city_graph)
@@ -127,11 +148,17 @@ if __name__ == "__main__":
     input_csv = f'public/example_routes/{file}'
     output_csv = f'public/result_routes/{file}'
 
-    points = read_csv_to_dict(input_csv)
-    NODE_POINTS = get_node_all(points, city_graph)
-    DISTANCE_MATRIX, POINT_INDEX_DICT = precompute_distances(graph_nx)
+    points = []
+    NODE_POINTS = []
+    if TYPE == 'strct':
+        points = read_csv_to_strct(input_csv)
+        NODE_POINTS = set_node_strct_all(points, city_graph)
 
+    else:
+        points = read_csv_to_dict(input_csv)
+        NODE_POINTS = get_node_all(points, city_graph)
+    DISTANCE_MATRIX, POINT_INDEX_DICT = precompute_distances(graph_nx, type=TYPE)
     best_route = genetic_algorithm(population_size=10, generations=300, mutation_rate=0.1)
     print("\nОптимальный маршрут готов")
 
-    reorder_csv(input_csv, output_csv, best_route)
+    reorder_csv(input_csv, output_csv, best_route, type=TYPE)
