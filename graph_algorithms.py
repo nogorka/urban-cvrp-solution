@@ -56,6 +56,11 @@ def get_graph(city_name, filename):
     download_graph(city_name, filename)
     return read_graph(filename)
 
+def optimize_graph_nx(city_graph):
+    G = nx.Graph(city_graph)
+    G = nx.minimum_spanning_tree(G)
+    return G
+
 if __name__ == "__main__":
 
     city_name = "Saint Petersburg, Russia"
@@ -63,6 +68,7 @@ if __name__ == "__main__":
 
     city_graph = get_graph(city_name, filename)
     city_graph_nx = nx.Graph(city_graph)
+    MST = nx.minimum_spanning_tree(city_graph_nx)
 
     locations = {'1st':(59.9206972,30.286013),
                  '2nd':(59.9496138,30.2264708),
@@ -80,6 +86,7 @@ if __name__ == "__main__":
 
     nodes_indexes = get_node_all(locations, city_graph)
 
+    optimize_graph_nx(city_graph)
     # # рисование графа и двух точек на нем
     # fig, ax = ox.plot_graph(city_graph, figsize=(10, 10), show=False, close=False, edge_color='gray')
 

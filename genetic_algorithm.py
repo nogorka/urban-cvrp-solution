@@ -4,7 +4,7 @@ from geopy.distance import geodesic
 import networkx as nx
 
 from input_preprocess import get_all_filenames, read_csv_to_dict, reorder_csv
-from graph_algorithms import calculate_distance, get_node, get_graph, get_node_all
+from graph_algorithms import calculate_distance, get_graph, get_node_all, optimize_graph_nx
 
 # Генерация начальной популяции, где одна особь это рандомный маршрут
 # изначальная структура данных (dict) не позволяют хранить закальцованный
@@ -66,7 +66,7 @@ def crossover(parent1, parent2):
 
     crossover_point = np.random.choice(np.arange(1, len(parent1) + 1), p=prob)
 
-    if crossover_point >= len(parent1) - 1:
+    if crossover_point > len(parent1) - 1:
         crossover_point = len(parent1) - 1
 
     child = parent1[:crossover_point]
@@ -118,7 +118,7 @@ if __name__ == "__main__":
     graph_filename = "road_network_graph.pickle"
 
     city_graph = get_graph(city_name, graph_filename)
-    graph_nx = nx.Graph(city_graph)
+    graph_nx = optimize_graph_nx(city_graph)
     file = '30_ex_12.csv'
 
     # filenames = get_all_filenames("public/example_routes")
