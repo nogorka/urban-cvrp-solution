@@ -1,10 +1,8 @@
 import numpy as np
 from tqdm import tqdm
-from geopy.distance import geodesic
-import networkx as nx
 
 from input_preprocess import get_all_filenames, reorder_csv, read_csv_to_dict, read_csv_to_strct
-from graph_algorithms import calculate_distance, get_graph, get_node_all, set_node_strct_all, optimize_graph_nx
+from graph_algorithms import get_graph, get_node_all, set_node_strct_all, optimize_graph_nx, precompute_distances
 
 # Генерация начальной популяции, где одна особь это рандомный маршрут
 # изначальная структура данных (dict) не позволяют хранить закальцованный
@@ -26,31 +24,6 @@ def generate_initial_population(population_size, type='strct'):
         route.append(last_point)
         population.append(route)
     return population
-
-# Вычисление матрицы расстояний всех точек со всеми,
-# считается диагональ, заполняется полностью
-def precompute_distances(graph_nx, type='strct'):
-    num_points = len(NODE_POINTS)
-    distances = np.zeros((num_points, num_points))
-
-    if type == 'strct':
-        for (it, _, node, _, _) in tqdm(NODE_POINTS, desc="Precompute Progress"):
-            for j in range(it+1, num_points):  # Fill only the upper triangular part
-                node2 = NODE_POINTS[j]['node']
-                distances[it, j] = calculate_distance(node, node2, graph_nx)
-                distances[j, it] = distances[it, j]
-        return distances, None
-    else:
-        point_indexes = {}
-        enum_points = list(enumerate(NODE_POINTS.items()))
-
-        for i, (id1, dct1) in tqdm(enum_points, desc="Precompute Progress"):
-            point_indexes[id1] = i
-            for j in range(i+1, num_points):  # Fill only the upper triangular part
-                _, dct2 = enum_points[j][1]
-                distances[i, j] = calculate_distance(dct1['node'], dct2['node'], graph_nx)
-                distances[j, i] = distances[i, j]
-        return distances, point_indexes
 
 def get_distance_from_matrix(point1, point2, type='strct'):
     if type == 'strct':
@@ -136,11 +109,10 @@ if __name__ == "__main__":
     city_name = "Saint Petersburg, Russia"
     graph_filename = "road_network_graph.pickle"
     TYPE = 'dict'
-
+    file = '30_ex_9.csv'
 
     city_graph = get_graph(city_name, graph_filename)
-    graph_nx = optimize_graph_nx(city_graph)
-    file = '30_ex_12.csv'
+
 
     # filenames = get_all_filenames("public/example_routes")
     # for file in filenames:
@@ -157,7 +129,11 @@ if __name__ == "__main__":
     else:
         points = read_csv_to_dict(input_csv)
         NODE_POINTS = get_node_all(points, city_graph)
-    DISTANCE_MATRIX, POINT_INDEX_DICT = precompute_distances(graph_nx, type=TYPE)
+
+    graph_nx = optimize_graph_nx(city_graph, node_points=NODE_POINTS, type=TYPE)
+
+    DISTANCE_MATRIX, POINT_INDEX_DICT = precompute_distances(graph_nx, NODE_POINTS, type=TYPE)
+
     best_route = genetic_algorithm(population_size=10, generations=300, mutation_rate=0.1)
     print("\nОптимальный маршрут готов")
 

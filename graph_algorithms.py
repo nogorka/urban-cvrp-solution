@@ -7,14 +7,18 @@ import time
 import matplotlib.pyplot as plt
 import numpy as np
 from input_preprocess import read_csv_to_strct
+from tqdm import tqdm
+
 
 # Сопоставление гео координат узлу на графе
 def get_node(coords, G):
     return ox.distance.nearest_nodes(G, X=coords[1], Y=coords[0])
 
+
 def get_node_all(coords_dct, G):
-    return { id: { "node": get_node(coords, G), "coords": coords }
+    return {id: {"node": get_node(coords, G), "coords": coords}
             for (id, coords) in coords_dct.items()}
+
 
 def set_node_strct_all(strct, G):
     lat_long_tuples = np.column_stack((strct['lat'], strct['long']))
@@ -22,11 +26,13 @@ def set_node_strct_all(strct, G):
     strct['node'] = nodes
     return strct
 
+
 # Подсчет минимального пути по Диикстре
 def calculate_distance(node1, node2, nxG):
     shortest_path = nx.shortest_path(nxG, source=node1, target=node2, weight='length')
-    total_distance = sum(nxG[shortest_path[i]][shortest_path[i+1]]['length'] for i in range(len(shortest_path)-1))
+    total_distance = sum(nxG[shortest_path[i]][shortest_path[i + 1]]['length'] for i in range(len(shortest_path) - 1))
     return round(total_distance)
+
 
 # def calculate_distance(node1, node2, nxG):
 #     shortest_path = nx.astar_path(nxG, source=node1, target=node2, weight='length')
@@ -44,11 +50,13 @@ def download_graph(city_name, filename):
     with open(filename, 'wb') as file:
         pickle.dump(G, file)
 
+
 # Чтение графа из файла
 def read_graph(filename):
     with open(filename, 'rb') as file:
         G = pickle.load(file)
     return G
+
 
 # Получение актуального графа
 def get_graph(city_name, filename):
@@ -64,31 +72,66 @@ def get_graph(city_name, filename):
     download_graph(city_name, filename)
     return read_graph(filename)
 
-def optimize_graph_nx(city_graph):
+
+def optimize_graph_nx(city_graph, node_points, type='strct'):
+    # TODO: seems to be unfinished code
+    if type == 'strct':
+        nodes = node_points['node']
+    else:
+        nodes = [dct['node'] for dct in node_points.values()]
+
     G = nx.Graph(city_graph)
     G = nx.minimum_spanning_tree(G)
     return G
+
+
+# Вычисление матрицы расстояний всех точек со всеми,
+# считается диагональ, заполняется полностью
+def precompute_distances(graph_nx, NODE_POINTS, type='strct'):
+    num_points = len(NODE_POINTS)
+    distances = np.zeros((num_points, num_points))
+
+    if type == 'strct':
+        for (it, _, node, _, _) in tqdm(NODE_POINTS, desc="Precompute Progress"):
+            for j in range(it + 1, num_points):  # Fill only the upper triangular part
+                node2 = NODE_POINTS[j]['node']
+                distances[it, j] = calculate_distance(node, node2, graph_nx)
+                distances[j, it] = distances[it, j]
+        return distances, None
+    else:
+        point_indexes = {}
+        enum_points = list(enumerate(NODE_POINTS.items()))
+
+        for i, (id1, dct1) in tqdm(enum_points, desc="Precompute Progress"):
+            point_indexes[id1] = i
+            for j in range(i + 1, num_points):  # Fill only the upper triangular part
+                _, dct2 = enum_points[j][1]
+                distances[i, j] = calculate_distance(dct1['node'], dct2['node'], graph_nx)
+                distances[j, i] = distances[i, j]
+        return distances, point_indexes
+
 
 if __name__ == "__main__":
 
     city_name = "Saint Petersburg, Russia"
     filename = "road_network_graph.pickle"
 
-    city_graph = get_graph(city_name, filename)
-    city_graph_nx = nx.Graph(city_graph)
+    file = '30_ex_9.csv'
+    input_csv = f'public/example_routes/{file}'
+    output_csv = f'public/result_routes/{file}'
 
-    init_data = read_csv_to_strct('public/example_routes/10_ex_1.csv')
+    city_graph = get_graph(city_name, filename)
+
+    init_data = read_csv_to_strct(input_csv)
     full_data = set_node_strct_all(init_data, city_graph)
 
-    locations = {'1st':(59.9206972,30.286013),
-                 '2nd':(59.9496138,30.2264708),
-                 '3rd':(59.9897338,30.3682432),
-                 '4th':(59.8744927,30.3870571)}
-    location1, location2 = locations['1st'], locations['2nd']
-    start_time = time.time()
+    city_graph_nx = optimize_graph_nx(city_graph, full_data)
 
-    node1 = full_data[full_data['id'] == 2216518883]['node'][0]
-    node2 = full_data[full_data['id'] == 11169616069]['node'][0]
+    dist, _ = precompute_distances(city_graph_nx, full_data)
+
+    start_time = time.time()
+    node1 = full_data[full_data['id'] == 11169615768]['node'][0]
+    node2 = full_data[full_data['id'] == 11304463593]['node'][0]
     distance = calculate_distance(node1, node2, city_graph_nx)
     end_time = time.time()
     print("Elapsed time:", (end_time - start_time) * 1000, "milseconds")
@@ -96,7 +139,6 @@ if __name__ == "__main__":
 
     # print(nodes_indexes[nodes_indexes['id' ] == 1234]['node'])
 
-    optimize_graph_nx(city_graph)
     # # рисование графа и двух точек на нем
     # fig, ax = ox.plot_graph(city_graph, figsize=(10, 10), show=False, close=False, edge_color='gray')
 
@@ -109,5 +151,3 @@ if __name__ == "__main__":
     # ax.scatter(location2_x, location2_y, c='red', label='Location 2', zorder=5)
     # ax.legend()
     # plt.show()
-
-
