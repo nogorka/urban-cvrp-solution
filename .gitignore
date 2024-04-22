@@ -2,5 +2,5 @@ log.md
 __pycache__
 .vscode
 cache
-road_network_graph.pickle
+public/road_network_graph.pickle
 .idea

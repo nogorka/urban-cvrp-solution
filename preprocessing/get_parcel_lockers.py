@@ -85,7 +85,7 @@ def download_locations(city="Санкт-Петербург"):
     print("Данные успешно получены")
 
     # Сохранение результатов в CSV файл
-    with open("public/locations_data.csv", "w", encoding="utf-8", newline='') as csv_file:
+    with open("../public/locations_data.csv", "w", encoding="utf-8", newline='') as csv_file:
         csv_writer = csv.writer(csv_file)
         csv_writer.writerow(["id", "lat", "long", "type", "adress", "total_volume", "free_volume", "purpose"])
 

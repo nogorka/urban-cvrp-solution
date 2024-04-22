@@ -1,6 +1,7 @@
 import folium
 import pandas as pd
 
+
 # HTML разметка всплывающего сообщения для маркеров
 def get_html(point):
     return f"""
@@ -8,6 +9,7 @@ def get_html(point):
     <p>{point.free_volume}/{point.total_volume}</p>
     {point.adress}
 """
+
 
 def get_color(type):
     if type == 'outpost':
@@ -18,7 +20,7 @@ def get_color(type):
 
 
 if __name__ == "__main__":
-    df = pd.read_csv('public/locations_data.csv')
+    df = pd.read_csv('../public/locations_data.csv')
 
     # Создание карты с центром на средних координатах точек
     map_center = [df['lat'].mean(), df['long'].mean()]
@@ -31,7 +33,6 @@ if __name__ == "__main__":
             popup=get_html(point),
             icon=folium.Icon(color=get_color(point.type))
         ).add_to(my_map)
-
 
     # Сохранение карты в файл HTML
     my_map.save("public/locations_data_preview.html")

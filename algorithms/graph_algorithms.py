@@ -4,9 +4,8 @@ import pickle
 import datetime
 import os
 import time
-import matplotlib.pyplot as plt
 import numpy as np
-from input_preprocess import read_csv_to_strct
+from preprocessing.input_preprocess import read_csv_to_strct
 from tqdm import tqdm
 
 
@@ -114,7 +113,7 @@ def precompute_distances(graph_nx, NODE_POINTS, type='strct'):
 if __name__ == "__main__":
 
     city_name = "Saint Petersburg, Russia"
-    filename = "road_network_graph.pickle"
+    filename = "../public/road_network_graph.pickle"
 
     file = '30_ex_9.csv'
     input_csv = f'public/example_routes/{file}'

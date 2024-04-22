@@ -1,6 +1,6 @@
-import numpy as np
 import matplotlib.pyplot as plt
-from input_preprocess import get_all_filenames, get_route
+from preprocessing.input_preprocess import get_all_filenames, get_route
+
 
 def levenshtein_distance(str1, str2):
     len_str1 = len(str1) + 1
@@ -17,9 +17,9 @@ def levenshtein_distance(str1, str2):
     for i in range(1, len_str1):
         for j in range(1, len_str2):
             cost = 0 if str1[i - 1] == str2[j - 1] else 1
-            matrix[i][j] = min(matrix[i - 1][j] + 1,      # deletion
-                              matrix[i][j - 1] + 1,      # insertion
-                              matrix[i - 1][j - 1] + cost)  # substitution
+            matrix[i][j] = min(matrix[i - 1][j] + 1,  # deletion
+                               matrix[i][j - 1] + 1,  # insertion
+                               matrix[i - 1][j - 1] + cost)  # substitution
 
     return matrix[len_str1 - 1][len_str2 - 1]
 
@@ -37,14 +37,13 @@ def visualize_error_percentages(error_dict):
 
 
 if __name__ == "__main__":
-    filenames = get_all_filenames("public/result_routes")
+    filenames = get_all_filenames("../public/result_routes")
     optimal_routes_dir = "optimal_routes"
     ga_routes_dir = "result_routes"
 
     error_rates = {}
 
     for filename in filenames:
-
         optimal_route = get_route(optimal_routes_dir, filename)
         ga_route = get_route(ga_routes_dir, filename)
 
@@ -56,4 +55,3 @@ if __name__ == "__main__":
 
     sorted_error_dict = dict(sorted(error_rates.items(), key=lambda item: item[1]))
     visualize_error_percentages(sorted_error_dict)
-

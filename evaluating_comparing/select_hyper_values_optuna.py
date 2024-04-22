@@ -1,8 +1,7 @@
 import optuna
-import matplotlib.pyplot as plt
-from genetic_algorithm import read_csv_to_dict, genetic_algorithm, fitness
+from algorithms.genetic_algorithm import read_csv_to_dict, genetic_algorithm, fitness
 from optuna.visualization import plot_optimization_history, plot_param_importances
-import plotly.express as px
+
 
 def objective(trial):
     population_size = trial.suggest_int('population_size', 5, 100)
@@ -20,11 +19,11 @@ def objective(trial):
     fitness_value = fitness(best_route, points)
     return 1 / fitness_value
 
+
 if __name__ == "__main__":
     input_csv = 'public/30_ex.csv'
     output_csv = 'public/output_ordered_points.csv'
     points = read_csv_to_dict(input_csv)
-
 
     study = optuna.create_study(direction='minimize')
     study.optimize(objective, n_trials=20)
@@ -63,4 +62,3 @@ if __name__ == "__main__":
     )
     fig_history.show()
     fig_importance.show()
-

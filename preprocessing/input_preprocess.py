@@ -4,6 +4,7 @@ import os
 import csv
 import pandas as pd
 
+
 # Получение списка всех файлов в директории
 def get_all_filenames(directory_path):
     filenames = []
@@ -12,6 +13,7 @@ def get_all_filenames(directory_path):
             filenames.append(filename)
     return filenames
 
+
 # Чтение csv из файла
 def load_csv(file_path):
     with open(file_path, 'r', encoding='utf-8') as csv_file:
@@ -19,11 +21,13 @@ def load_csv(file_path):
         data = [row for row in csv_reader]
     return data
 
+
 # Вытаскивание маршрута из файла
 def get_route(dirname, filename):
-    path = os.path.join('public', dirname, filename)
+    path = os.path.join('../public', dirname, filename)
     df = load_csv(path)
     return np.array([row['id'] for row in df])
+
 
 # Чтение точек и преобразование к формату работы { 'id': (lat, long), ....}
 def read_csv_to_dict(file_path):
@@ -36,6 +40,7 @@ def read_csv_to_dict(file_path):
             data_dict[row['id']] = (float(row['lat']), float(row['long']))
 
     return data_dict
+
 
 # Чтение и преобразование к структурному массиву numpy [it, id, node, lat, long]
 def read_csv_to_strct(file_path):
@@ -51,6 +56,7 @@ def read_csv_to_strct(file_path):
 
     return data_array
 
+
 # Сопоставлении ключей и переупорядочивания строк в DataFrame
 def reorder_csv(input_csv, output_csv, keys, type='strct'):
     df = pd.read_csv(input_csv)
@@ -60,6 +66,7 @@ def reorder_csv(input_csv, output_csv, keys, type='strct'):
     df_reordered = df_selected.set_index('id').loc[keys].reset_index()
     df_reordered.to_csv(output_csv, index=False)
 
+
 if __name__ == "__main__":
-    d = read_csv_to_strct('public/example_routes/10_ex_1.csv')
+    d = read_csv_to_strct('../public/example_routes/10_ex_1.csv')
     print(d['lat'])
