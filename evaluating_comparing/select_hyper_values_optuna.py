@@ -1,5 +1,5 @@
 import optuna
-from algorithms.genetic_algorithm import read_csv_to_dict, genetic_algorithm, fitness
+from algorithms.genetic_algorithm_dict import read_csv_to_dict, genetic_algorithm, fitness
 from optuna.visualization import plot_optimization_history, plot_param_importances
 
 

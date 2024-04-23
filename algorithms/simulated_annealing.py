@@ -19,7 +19,7 @@ def simulated_annealing(dist_matrix, node_index_keys, initial_temp, cooling_rate
 
         temperature *= cooling_rate
 
-    return current_solution, current_cost
+    return current_solution
 
 
 def neighbour_solution(solution):
@@ -65,7 +65,7 @@ if __name__ == "__main__":
 
     dist_matrix, city_names = precompute_distances(graph_nx, NODE_POINTS, TYPE)
 
-    best_solution, best_cost = simulated_annealing(dist_matrix,
+    best_solution = simulated_annealing(dist_matrix,
                                                    city_names,
                                                    initial_temp=1000,
                                                    cooling_rate=0.995,
