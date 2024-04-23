@@ -1,4 +1,5 @@
 import time
+import networkx as nx
 
 from algorithms.adaptive_crossover_operations_genetic_algorithm import geneticAlgorithm, matrix_to_dict_with_keys, City
 from algorithms.genetic_algorithm_dict import genetic_algorithm
@@ -28,13 +29,13 @@ def main():
     points = read_csv_to_dict(config['input_csv'])
     node_points = get_node_all(points, city_graph)
     graph_nx = optimize_graph_nx(city_graph, node_points, config['data_type'])
-
+    not_opt_graph_nx = nx.Graph(city_graph)
     distance_matrix, point_index_dict = precompute_distances(graph_nx, node_points, config['data_type'])
 
     results = {}
     for algorithm in algorithms:
         best_route, time_taken = algorithm(node_points, distance_matrix, point_index_dict)
-        best_length = calculate_route_lengths(best_route, city_graph, node_points)
+        best_length = calculate_route_lengths(best_route, not_opt_graph_nx, node_points)
         method_name = algorithm.__name__.replace('run_', '').replace('_', ' ').title()
         results[method_name] = [best_route, best_length, time_taken]
 
