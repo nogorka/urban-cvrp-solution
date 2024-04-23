@@ -1,4 +1,6 @@
 import time
+
+from algorithms.adaptive_crossover_operations_genetic_algorithm import geneticAlgorithm, matrix_to_dict_with_keys, City
 from algorithms.genetic_algorithm_dict import genetic_algorithm
 from algorithms.graph_algorithms import get_graph, get_node_all, optimize_graph_nx, precompute_distances, \
     calculate_route_lengths
@@ -16,6 +18,11 @@ def main():
         'output_csv': '../public/result_routes/10_ex_1.csv',
         'compare_output_csv': '../public/compare_result_routes/10_ex_1.csv',
     }
+    algorithms = [
+        run_simulated_annealing,
+        run_genetic_algorithm,
+        run_genetic_algorithm_adaptive_crossover,
+    ]
 
     city_graph = get_graph(config['city_name'], config['graph_filename'])
     points = read_csv_to_dict(config['input_csv'])
@@ -24,26 +31,26 @@ def main():
 
     distance_matrix, point_index_dict = precompute_distances(graph_nx, node_points, config['data_type'])
 
-    algorithms = [run_simulated_annealing, run_genetic_algorithm]
     results = {}
     for algorithm in algorithms:
         best_route, time_taken = algorithm(node_points, distance_matrix, point_index_dict)
         best_length = calculate_route_lengths(best_route, city_graph, node_points)
         method_name = algorithm.__name__.replace('run_', '').replace('_', ' ').title()
-        # print_route_info(method_name, best_route, best_length, time_taken)
         results[method_name] = [best_route, best_length, time_taken]
 
-    for it, (alg_name, (cur_route, cur_length, seconds)) in list(enumerate(results.items())):
+    for it, (method_name, (cur_route, cur_length, seconds)) in list(enumerate(results.items())):
         optimal_length = results['Simulated Annealing'][1]
         length_diff = (optimal_length - cur_length) / 1000
-        results[alg_name].append(round(length_diff, 1))
+        results[method_name].append(round(length_diff, 1))
 
         optimal_route = results['Simulated Annealing'][0]
         distance = levenshtein_distance(optimal_route, cur_route) / len(cur_route)
         reverse_distance = levenshtein_distance(optimal_route, cur_route[::-1]) / len(cur_route)
 
         resemble_rate = 1 - distance if distance < reverse_distance else reverse_distance
-        results[alg_name].append(resemble_rate)
+        results[method_name].append(resemble_rate)
+
+        print_route_info(method_name, cur_route, cur_length, seconds, length_diff, resemble_rate)
 
     write_compare_csv(config['compare_output_csv'], results)
 
@@ -61,16 +68,31 @@ def run_simulated_annealing(node_points, distance_matrix, point_index_dict):
 
 def run_genetic_algorithm(node_points, distance_matrix, point_index_dict):
     start = time.time()
-    best_route = genetic_algorithm(population_size=10, generations=300, mutation_rate=0.1,
+    best_route = genetic_algorithm(population_size=10, generations=100, mutation_rate=0.01,
                                    NP=node_points, PID=point_index_dict, DM=distance_matrix)
     end = time.time()
     return best_route, end - start
 
 
-def print_route_info(method_name, route, length, time_taken):
-    print(f"\nOptimal route ready using {method_name}")
+def run_genetic_algorithm_adaptive_crossover(node_points, distance_matrix, point_index_dict):
+    city_list = [City(ox_id, node_data['coords']) for ox_id, node_data in node_points.items()]
+    distance_matrix = matrix_to_dict_with_keys(distance_matrix, point_index_dict)
+
+    start = time.time()
+    bestRoute = geneticAlgorithm(distance_matrix, city_list,
+                                 popSize=10, eliteSize=2, mutationRate=0.01, generations=100)
+    end = time.time()
+
+    route = [node.node_id for node in bestRoute]
+    return route, end - start
+
+
+def print_route_info(method_name, route, length, time_taken, length_diff, resemble_rate):
+    print(f"\n____ using {method_name} ____")
     print(f"Execution time, seconds: {time_taken}")
     print(f"Length, km: {length / 1000:.1f}")
+    print(f"Length difference, km: {length_diff}")
+    print(f"Resemble rate, %: {resemble_rate * 100:.1f}")
     print(f"Sequence, osmnx ids: {route}")
 
 
