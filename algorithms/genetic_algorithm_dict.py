@@ -104,7 +104,8 @@ def genetic_algorithm(population_size, generations, mutation_rate, NP, PID, DM):
         population = new_population
 
     # Найденный оптимальный маршрут, выбор первого из списка популяции
-    return select_best(population, fitness_values, num_best=1)[0]
+    route = select_best(population, fitness_values, num_best=1)[0]
+    return route[:-1]
 
 
 if __name__ == "__main__":
