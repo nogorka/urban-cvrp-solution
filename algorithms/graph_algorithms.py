@@ -5,7 +5,7 @@ import datetime
 import os
 import time
 import numpy as np
-from preprocessing.input_preprocess import read_csv_to_strct
+from preprocessing.input_preprocess import read_csv_to_strct, read_csv_to_dict
 from tqdm import tqdm
 
 
@@ -24,6 +24,16 @@ def set_node_strct_all(strct, G):
     nodes = np.apply_along_axis(lambda x: get_node(tuple(x), G), 1, lat_long_tuples)
     strct['node'] = nodes
     return strct
+
+
+def calculate_route_lengths(route, G, NODE_POINTS):
+    R = [NODE_POINTS[ext_id]['node'] for ext_id in route]
+
+    distance = 0
+    for i in range(len(R) - 1):
+        distance += nx.shortest_path_length(G, source=R[i], target=R[i+1], weight='length')
+    distance += nx.shortest_path_length(G, source=R[-1], target=R[0], weight='length')
+    return round(distance)
 
 
 # Подсчет минимального пути по Диикстре
@@ -115,11 +125,14 @@ if __name__ == "__main__":
     city_name = "Saint Petersburg, Russia"
     filename = "../public/road_network_graph.pickle"
 
-    file = '30_ex_9.csv'
-    input_csv = f'public/example_routes/{file}'
-    output_csv = f'public/result_routes/{file}'
+    file = '10_ex_1.csv'
+    input_csv = f'../public/example_routes/{file}'
+    output_csv = f'../public/result_routes/{file}'
 
     city_graph = get_graph(city_name, filename)
+
+    points = read_csv_to_dict(input_csv)
+    NODE_POINTS = get_node_all(points, city_graph)
 
     init_data = read_csv_to_strct(input_csv)
     full_data = set_node_strct_all(init_data, city_graph)
@@ -127,6 +140,10 @@ if __name__ == "__main__":
     city_graph_nx = optimize_graph_nx(city_graph, full_data)
 
     dist, _ = precompute_distances(city_graph_nx, full_data)
+
+    route = ['11304463470', '10844090706', '10672598289', '10763697408', '6308159165', '11169616069', '9076608902', '11169616022', '10844090935', '2216518883', '11304463470']
+    length = calculate_route_lengths(route, city_graph, NODE_POINTS)
+    print(length)
 
     start_time = time.time()
     node1 = full_data[full_data['id'] == 11169615768]['node'][0]

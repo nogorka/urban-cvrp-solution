@@ -2,7 +2,8 @@ import numpy as np
 from tqdm import tqdm
 
 from preprocessing.input_preprocess import reorder_csv, read_csv_to_dict, read_csv_to_strct
-from graph_algorithms import get_graph, get_node_all, set_node_strct_all, optimize_graph_nx, precompute_distances
+from graph_algorithms import get_graph, get_node_all, set_node_strct_all, optimize_graph_nx, precompute_distances, \
+    calculate_route_lengths
 
 
 # Генерация начальной популяции, где одна особь это рандомный маршрут
@@ -117,15 +118,15 @@ if __name__ == "__main__":
     city_name = "Saint Petersburg, Russia"
     graph_filename = "../public/road_network_graph.pickle"
     TYPE = 'dict'
-    file = '30_ex_9.csv'
+    file = '10_ex_1.csv'
 
     city_graph = get_graph(city_name, graph_filename)
 
     # filenames = get_all_filenames("public/example_routes")
     # for file in filenames:
 
-    input_csv = f'public/example_routes/{file}'
-    output_csv = f'public/result_routes/{file}'
+    input_csv = f'../public/example_routes/{file}'
+    output_csv = f'../public/result_routes/{file}'
 
     points = []
     NODE_POINTS = []
@@ -142,6 +143,11 @@ if __name__ == "__main__":
     DISTANCE_MATRIX, POINT_INDEX_DICT = precompute_distances(graph_nx, NODE_POINTS, type=TYPE)
 
     best_route = genetic_algorithm(population_size=10, generations=300, mutation_rate=0.1)
+    best_length = calculate_route_lengths(best_route, city_graph, NODE_POINTS)
     print("\nОптимальный маршрут готов")
+    print("Длина, км:\t\t\t\t\t\t", best_length)
+    print("Последовательность, osmnx ids:\t", best_route)
 
     reorder_csv(input_csv, output_csv, best_route, type=TYPE)
+    print("Сохранено в файл:\t\t\t\t", output_csv)
+

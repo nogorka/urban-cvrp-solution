@@ -1,7 +1,7 @@
 import random
 import math
 from algorithms.graph_algorithms import precompute_distances, get_graph, set_node_strct_all, get_node_all, \
-    optimize_graph_nx
+    optimize_graph_nx, calculate_route_lengths
 from preprocessing.input_preprocess import read_csv_to_strct, read_csv_to_dict, reorder_csv
 
 
@@ -70,5 +70,11 @@ if __name__ == "__main__":
                                                    initial_temp=1000,
                                                    cooling_rate=0.995,
                                                    min_temp=1)
-    print("Best path:", best_solution)
-    print("Cost of the best path:", best_cost)
+    best_length = calculate_route_lengths(best_solution, city_graph, NODE_POINTS)
+    print("\nОптимальный маршрут готов")
+    print("Длина, км:\t\t\t\t\t\t", best_length)
+    print("Последовательность, osmnx ids:\t", best_solution)
+
+    reorder_csv(input_csv, output_csv, best_solution, type=TYPE)
+    print("Сохранено в файл:\t\t\t\t", output_csv)
+
