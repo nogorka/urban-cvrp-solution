@@ -3,5 +3,6 @@ __pycache__
 .vscode
 cache
 public/road_network_graph.pickle
+public/locations_data_preview.html
 .idea
 qodana.yaml

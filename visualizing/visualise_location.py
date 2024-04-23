@@ -20,6 +20,8 @@ def get_color(type):
 
 
 if __name__ == "__main__":
+    output = "../public/locations_data_preview.html"
+
     df = pd.read_csv('../public/locations_data.csv')
 
     # Создание карты с центром на средних координатах точек
@@ -35,4 +37,5 @@ if __name__ == "__main__":
         ).add_to(my_map)
 
     # Сохранение карты в файл HTML
-    my_map.save("public/locations_data_preview.html")
+    my_map.save(output)
+    print(f'To see the map open file from {output}')
