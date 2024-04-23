@@ -4,3 +4,4 @@ __pycache__
 cache
 public/road_network_graph.pickle
 .idea
+qodana.yaml

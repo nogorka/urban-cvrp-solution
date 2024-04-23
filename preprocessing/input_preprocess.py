@@ -67,6 +67,23 @@ def reorder_csv(input_csv, output_csv, keys, type='strct'):
     df_reordered.to_csv(output_csv, index=False)
 
 
+def write_compare_csv(filename, result_dct):
+    with open(filename, mode='w', newline='') as file:
+        writer = csv.writer(file)
+        writer.writerow(['Algorithm', 'Route', 'Distance (km)', 'Execution Time (s)', 'Length Difference (km)',
+                         'Resemble Rate (%)'])
+
+        for algorithm, data in result_dct.items():
+            route = ', '.join(data[0])
+            distance = data[1]
+            execution_time = data[2]
+            metric1 = data[3]
+            metric2 = data[4]
+            writer.writerow([algorithm, route, distance, execution_time, metric1, metric2])
+
+    print(f"Data successfully written to {filename}")
+
+
 if __name__ == "__main__":
     d = read_csv_to_strct('../public/example_routes/10_ex_1.csv')
     print(d['lat'])
