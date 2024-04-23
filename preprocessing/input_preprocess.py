@@ -81,7 +81,7 @@ def write_compare_csv(filename, result_dct):
             metric2 = data[4]
             writer.writerow([algorithm, route, distance, execution_time, metric1, metric2])
 
-    print(f"Data successfully written to {filename}")
+    print(f"\nData successfully written to {filename}")
 
 
 if __name__ == "__main__":
