@@ -67,19 +67,21 @@ def reorder_csv(input_csv, output_csv, keys, type='strct'):
     df_reordered.to_csv(output_csv, index=False)
 
 
-def write_compare_csv(filename, result_dct):
+def write_compare_csv(filename, result_lst):
     with open(filename, mode='w', newline='') as file:
         writer = csv.writer(file)
         writer.writerow(['Algorithm', 'Route', 'Distance (km)', 'Execution Time (s)', 'Length Difference (km)',
-                         'Resemble Rate (%)'])
+                         'Resemble Rate (%)', 'Try (№)'])
 
-        for algorithm, data in result_dct.items():
-            route = ', '.join(data[0])
-            distance = data[1]
-            execution_time = data[2]
-            metric1 = data[3]
-            metric2 = data[4]
-            writer.writerow([algorithm, route, distance, execution_time, metric1, metric2])
+        for data in result_lst:
+            algorithm = data[0]
+            route = ', '.join(data[1])
+            distance = data[2]
+            execution_time = data[3]
+            n_try = data[4]
+            metric1 = data[5]
+            metric2 = data[6]
+            writer.writerow([algorithm, route, distance, execution_time, metric1, metric2, n_try])
 
     print(f"\nData successfully written to {filename}")
 

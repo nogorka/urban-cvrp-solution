@@ -8,7 +8,7 @@ from algorithms.graph_algorithms import get_graph, get_node_all, optimize_graph_
     calculate_route_lengths
 from algorithms.simulated_annealing import simulated_annealing
 from evaluating_comparing.compare_routes import levenshtein_distance
-from preprocessing.input_preprocess import read_csv_to_dict, reorder_csv, write_compare_csv
+from preprocessing.input_preprocess import read_csv_to_dict, write_compare_csv, get_all_filenames
 
 
 def main():
@@ -16,9 +16,10 @@ def main():
         'city_name': "Saint Petersburg, Russia",
         'graph_filename': "../public/road_network_graph.pickle",
         'data_type': 'dict',
-        'input_csv': '../public/example_routes/10_ex_3.csv',
-        'output_csv': '../public/result_routes/10_ex_3.csv',
-        'compare_output_csv': '../public/compare_result_routes/10_ex_3.csv',
+        'input_csv': '../public/example_routes/',
+        'output_csv': '../public/result_routes/',
+        'compare_output_csv': '../public/compare_result_routes/',
+        'batch_size': 2
     }
     algorithms = [
         run_simulated_annealing,
@@ -27,35 +28,43 @@ def main():
         run_irgibnnm_genetic_algorithm,
     ]
 
-    city_graph = get_graph(config['city_name'], config['graph_filename'])
-    points = read_csv_to_dict(config['input_csv'])
-    node_points = get_node_all(points, city_graph)
-    graph_nx = optimize_graph_nx(city_graph, node_points, config['data_type'])
-    not_opt_graph_nx = nx.Graph(city_graph)
-    distance_matrix, point_index_dict = precompute_distances(graph_nx, node_points, config['data_type'])
+    filenames = get_all_filenames(config['input_csv'])
+    for file in filenames:
+        #     file = '10_ex_1.csv'
 
-    results = {}
-    for algorithm in algorithms:
-        best_route, time_taken = algorithm(node_points, distance_matrix, point_index_dict)
-        best_length = calculate_route_lengths(best_route, not_opt_graph_nx, node_points)
-        method_name = algorithm.__name__.replace('run_', '').replace('_', ' ').title()
-        results[method_name] = [best_route, best_length, time_taken]
+        input_csv = config['input_csv'] + file
+        compare_output_csv = config['compare_output_csv'] + file
 
-    for it, (method_name, (cur_route, cur_length, seconds)) in list(enumerate(results.items())):
-        optimal_length = results['Simulated Annealing'][1]
-        length_diff = (optimal_length - cur_length) / 1000
-        results[method_name].append(round(length_diff, 1))
+        city_graph = get_graph(config['city_name'], config['graph_filename'])
+        points = read_csv_to_dict(input_csv)
+        node_points = get_node_all(points, city_graph)
+        graph_nx = optimize_graph_nx(city_graph, node_points, config['data_type'])
+        not_opt_graph_nx = nx.Graph(city_graph)
+        distance_matrix, point_index_dict = precompute_distances(graph_nx, node_points, config['data_type'])
 
-        optimal_route = results['Simulated Annealing'][0]
-        distance = levenshtein_distance(optimal_route, cur_route) / len(cur_route)
-        reverse_distance = levenshtein_distance(optimal_route, cur_route[::-1]) / len(cur_route)
+        results = []
+        for algorithm in algorithms:
+            for batch_try in range(config['batch_size']):
+                best_route, time_taken = algorithm(node_points, distance_matrix, point_index_dict)
+                best_length = calculate_route_lengths(best_route, not_opt_graph_nx, node_points)
+                method_name = algorithm.__name__.replace('run_', '').replace('_', ' ').title()
+                results.append([method_name, best_route, best_length, round(time_taken, 3), batch_try])
 
-        resemble_rate = 1 - distance if distance < reverse_distance else reverse_distance
-        results[method_name].append(resemble_rate)
+        for it, (method_name, cur_route, cur_length, seconds, batch) in enumerate(results):
+            optimal_length = results[0][2]  # Simulated Annealing - length
+            length_diff = (optimal_length - cur_length) / 1000
+            results[it].append(round(length_diff, 1))
 
-        print_route_info(method_name, cur_route, cur_length, seconds, length_diff, resemble_rate)
+            optimal_route = results[0][1]  # Simulated Annealing - route
+            distance = levenshtein_distance(optimal_route, cur_route) / len(cur_route)
+            reverse_distance = levenshtein_distance(optimal_route, cur_route[::-1]) / len(cur_route)
 
-    write_compare_csv(config['compare_output_csv'], results)
+            resemble_rate = 1 - distance if distance < reverse_distance else reverse_distance
+            results[it].append(resemble_rate)
+
+            # print_route_info(method_name, cur_route, cur_length, seconds, length_diff, resemble_rate, batch)
+
+        write_compare_csv(compare_output_csv, results)
 
     # reorder_csv(config['input_csv'], config['output_csv'], best_route, config['data_type'])
     # print(f"Saved to file: {config['output_csv']}")
@@ -93,18 +102,19 @@ def run_genetic_algorithm_adaptive_crossover(node_points, distance_matrix, point
 def run_irgibnnm_genetic_algorithm(node_points, distance_matrix, point_index_dict):
     start = time.time()
     best_route = irgibnnm_genetic_algorithm(population_size=10, generations=100,
-                                   NP=node_points, PID=point_index_dict, DM=distance_matrix)
+                                            NP=node_points, PID=point_index_dict, DM=distance_matrix)
     end = time.time()
     return best_route, end - start
 
 
-def print_route_info(method_name, route, length, time_taken, length_diff, resemble_rate):
+def print_route_info(method_name, route, length, time_taken, length_diff, resemble_rate, n_try):
     print(f"\n____ using {method_name} ____")
     print(f"Execution time, seconds: {time_taken}")
     print(f"Length, km: {length / 1000:.1f}")
     print(f"Length difference, km: {length_diff}")
     print(f"Resemble rate, %: {resemble_rate * 100:.1f}")
     print(f"Sequence, osmnx ids: {route}")
+    print(f"TRY: {n_try}")
 
 
 if __name__ == "__main__":

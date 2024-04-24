@@ -74,15 +74,12 @@ def inversion_mutation(tour):
 
 def rgibnnm_mutation(route, distance_matrix):
     # Select a random gene
-    random_gene_idx = random.randint(0, len(route) - 2)  # -2 cuz route length initially longer in 1 node
-    print(random_gene_idx, len(route), route)
+    random_gene_idx = random.randint(0, len(route) - 1)  # -2 cuz route length initially longer in 1 node
 
     # Find the nearest neighbor
     distances = distance_matrix[random_gene_idx]
-    print(distances)
     nearest_neighbor = np.argmin(
         [distances[i] if i != random_gene_idx else float('inf') for i in range(len(distances))])
-    print(nearest_neighbor)
 
     # Select a random neighbor of the nearest neighbor within a range (using modulo for wraparound)
     neighbors = range(max(0, nearest_neighbor - 5), min(len(route), nearest_neighbor + 6))
