@@ -19,7 +19,7 @@ def main():
         'input_csv': '../public/example_routes/',
         'output_csv': '../public/result_routes/',
         'compare_output_csv': '../public/compare_result_routes/',
-        'batch_size': 2
+        'batch_size': 10
     }
     algorithms = [
         run_simulated_annealing,

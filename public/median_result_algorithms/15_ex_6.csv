@@ -1,0 +1,5 @@
+Algorithm,Distance (km),Execution Time (s),Length Difference (km),Resemble Rate (%)
+Genetic Algorithm,121477.5,0.043,76.5,0.1666666666666666
+Genetic Algorithm Adaptive Crossover,109753.5,0.106,88.2,0.8333333333333333
+Irgibnnm Genetic Algorithm,120436.5,0.0535,77.55000000000001,0.8666666666666667
+Simulated Annealing,189568.0,0.012,8.4,0.5333333333333333
