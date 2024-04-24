@@ -2,6 +2,7 @@ import time
 import networkx as nx
 
 from algorithms.adaptive_crossover_operations_genetic_algorithm import geneticAlgorithm, matrix_to_dict_with_keys, City
+from algorithms.IRGIBNNM_genetic_algorithm import genetic_algorithm as irgibnnm_genetic_algorithm
 from algorithms.genetic_algorithm_dict import genetic_algorithm
 from algorithms.graph_algorithms import get_graph, get_node_all, optimize_graph_nx, precompute_distances, \
     calculate_route_lengths
@@ -15,14 +16,15 @@ def main():
         'city_name': "Saint Petersburg, Russia",
         'graph_filename': "../public/road_network_graph.pickle",
         'data_type': 'dict',
-        'input_csv': '../public/example_routes/10_ex_1.csv',
-        'output_csv': '../public/result_routes/10_ex_1.csv',
-        'compare_output_csv': '../public/compare_result_routes/10_ex_1.csv',
+        'input_csv': '../public/example_routes/10_ex_3.csv',
+        'output_csv': '../public/result_routes/10_ex_3.csv',
+        'compare_output_csv': '../public/compare_result_routes/10_ex_3.csv',
     }
     algorithms = [
         run_simulated_annealing,
         run_genetic_algorithm,
         run_genetic_algorithm_adaptive_crossover,
+        run_irgibnnm_genetic_algorithm,
     ]
 
     city_graph = get_graph(config['city_name'], config['graph_filename'])
@@ -86,6 +88,14 @@ def run_genetic_algorithm_adaptive_crossover(node_points, distance_matrix, point
 
     route = [node.node_id for node in bestRoute]
     return route, end - start
+
+
+def run_irgibnnm_genetic_algorithm(node_points, distance_matrix, point_index_dict):
+    start = time.time()
+    best_route = irgibnnm_genetic_algorithm(population_size=10, generations=100,
+                                   NP=node_points, PID=point_index_dict, DM=distance_matrix)
+    end = time.time()
+    return best_route, end - start
 
 
 def print_route_info(method_name, route, length, time_taken, length_diff, resemble_rate):
