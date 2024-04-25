@@ -1,7 +1,5 @@
 import numpy as np
 
-from v2oop.utils import get_distance_from_matrix
-
 
 class Route:
     def __init__(self, points):
