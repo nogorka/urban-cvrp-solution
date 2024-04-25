@@ -17,3 +17,7 @@ def fill_nn_matrix(points):
             distances[it, j] = calculate_distance_geo(points[it], points[j])
             distances[j, it] = distances[it, j]
     return distances
+
+
+def get_distance_from_matrix(point1, point2, matrix):
+    return matrix[point1.it, point2.it]

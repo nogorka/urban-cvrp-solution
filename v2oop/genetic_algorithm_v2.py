@@ -1,5 +1,7 @@
 import random
 
+from tqdm import tqdm
+
 from algorithms.graph_algorithms import get_graph, optimize_graph_nx
 from v2oop.graph import set_node_all_point_list, precompute_distances
 from v2oop.objects.route import Route
@@ -16,6 +18,7 @@ from v2oop.utils import fill_nn_matrix
 другая - с учетом коэффициента близости соседа. 
 Коэффициент следует рассчитывать на основе геодезических координат 
 '''
+
 
 # now i removed fixing first point so later
 # TODO:  don't forget to filter result route and fix first point
@@ -35,14 +38,22 @@ def generate_initial_population(population_size, points):
         population.append(route)
     return population
 
+
+# Вычисление приспособленности маршрута (меньше значение - лучше)
+def fitness(route, matrix):
+    route.calculate_length(matrix)
+    return 1 / route.length
+
+
 def genetic_algorithm(population_size, generations, mutation_rate, points, DM):
     population = generate_initial_population(population_size, points=points)
-    print(population)
 
-# for _ in tqdm(range(generations), desc="Genetic Algorithm Progress"):
-#     # Значения приспособленности поколения в полуляции
-#     fitness_values = [fitness(route, PID, DM) for route in population]
-#
+    for _ in tqdm(range(generations), desc="Genetic Algorithm Progress"):
+        # Значения приспособленности поколения в полуляции
+        fitness_values = [fitness(route, DM) for route in population]
+        print(f'Generation {_ + 1} | Fitness: {fitness_values}')
+
+
 #     # Выбор 2 лучших родителей
 #     best_routes = select_best(population, fitness_values, num_best=2)
 #
@@ -77,5 +88,5 @@ if __name__ == "__main__":
 
     distance_matrix = precompute_distances(graph_nx, city_points)
 
-    best_route = genetic_algorithm(population_size=10, generations=300, mutation_rate=0.1, points=city_points,
+    best_route = genetic_algorithm(population_size=3, generations=10, mutation_rate=0.1, points=city_points,
                                    DM=distance_matrix)
