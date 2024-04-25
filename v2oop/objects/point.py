@@ -13,7 +13,8 @@ class Point:
         return f'(Node({self.node_id}, {self.lat}, {self.long}))'
 
     def __repr__(self):
-        return f'({self.id},{self.it}: Node({self.node_id}, {self.lat}, {self.long}))'
+        # return f'({self.id},{self.it}: Node({self.node_id}, {self.lat}, {self.long}))'
+        return f'({self.id},{self.it})'
 
     def set_node_id(self, node_id):
         self.node_id = node_id

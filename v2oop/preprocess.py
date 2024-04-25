@@ -1,6 +1,6 @@
 import csv
 
-from v2oop.objects import Point
+from v2oop.objects.point import Point
 
 
 def read_csv_to_point_list(file_path):

@@ -1,6 +1,10 @@
+import random
+
 from algorithms.graph_algorithms import get_graph, optimize_graph_nx
 from v2oop.graph import set_node_all_point_list, precompute_distances
+from v2oop.objects.route import Route
 from v2oop.preprocess import read_csv_to_point_list
+from v2oop.utils import fill_nn_matrix
 
 # Генерация начальной популяции, где одна особь это рандомный маршрут
 # изначальная структура данных (dict) не позволяют хранить закальцованный
@@ -17,33 +21,23 @@ from v2oop.preprocess import read_csv_to_point_list
 # TODO:  don't forget to filter result route and fix first point
 # also I romeved doubling it for the end
 
-#
-# def fill_nn_matrix(node_points):
-#     print(node_points)
-#     pass
-#
-#
-# def create_random_specimen(ids):
-#     route = ids[:]
-#     np.random.shuffle(route)
-#     return route
-#
-#
-# def generate_initial_population(population_size, node_points):
-#     population = []
-#     route_ids = list(node_points.keys())
-#
-#     nn_distance_matrix = fill_nn_matrix(node_points)
-#
-#     for _ in range(population_size):
-#         route = create_random_specimen(route_ids)
-#         population.append(route)
-#     return population
 
+def generate_initial_population(population_size, points):
+    population = []
+    nn_distance_matrix = fill_nn_matrix(points)
 
-# def genetic_algorithm(population_size, generations, mutation_rate, NP, PID, DM):
-#     population = generate_initial_population(population_size, node_points=NP)
-#     print(population)
+    for _ in range(population_size):
+        route = Route(points)
+        if random.randint(0, 1):
+            route.create_nn_dependant_specimens(nn_distance_matrix)
+        else:
+            route.create_random_specimen()
+        population.append(route)
+    return population
+
+def genetic_algorithm(population_size, generations, mutation_rate, points, DM):
+    population = generate_initial_population(population_size, points=points)
+    print(population)
 
 # for _ in tqdm(range(generations), desc="Genetic Algorithm Progress"):
 #     # Значения приспособленности поколения в полуляции
@@ -78,7 +72,10 @@ if __name__ == "__main__":
     input_csv = f'../public/example_routes/{file}'
     output_csv = f'../public/result_routes/{file}'
 
-    points = read_csv_to_point_list(input_csv)
-    set_node_all_point_list(points, city_graph)
+    city_points = read_csv_to_point_list(input_csv)
+    set_node_all_point_list(city_points, city_graph)
 
-    distance_matrix = precompute_distances(graph_nx, points)
+    distance_matrix = precompute_distances(graph_nx, city_points)
+
+    best_route = genetic_algorithm(population_size=10, generations=300, mutation_rate=0.1, points=city_points,
+                                   DM=distance_matrix)
