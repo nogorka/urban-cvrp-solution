@@ -82,12 +82,12 @@ def get_graph(city_name, filename):
     return read_graph(filename)
 
 
-def optimize_graph_nx(city_graph, node_points, type='strct'):
+def optimize_graph_nx(city_graph, node_points={}, type='strct'):
     # TODO: seems to be unfinished code
-    if type == 'strct':
-        nodes = node_points['node']
-    else:
-        nodes = [dct['node'] for dct in node_points.values()]
+    # if type == 'strct':
+    #     nodes = node_points['node']
+    # else:
+    #     nodes = [dct['node'] for dct in node_points.values()]
 
     G = nx.Graph(city_graph)
     G = nx.minimum_spanning_tree(G)
