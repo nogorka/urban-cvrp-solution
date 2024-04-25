@@ -7,10 +7,10 @@ class Route:
         self.len = len(points)
 
     def __str__(self):
-        return "_".join(self.points)
+        return str(self.points)
 
     def __repr__(self):
-        return "_".join(self.points)
+        return str(self.points)
 
     def set_points(self, points):
         self.points = points
