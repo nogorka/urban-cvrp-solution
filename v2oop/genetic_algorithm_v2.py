@@ -60,7 +60,7 @@ def generate_initial_population(population_size, points):
 
 # Вычисление приспособленности маршрута (меньше значение - лучше)
 def fitness(route, matrix):
-    route.calculate_length(matrix)
+    route.calculate_length_M(matrix)
     return 1 / route.length
 
 
@@ -169,9 +169,10 @@ if __name__ == "__main__":
 
     distance_matrix = precompute_distances(graph_nx, city_points)
 
-    best_route = genetic_algorithm(population_size=3, generations=10, points=city_points, matrix=distance_matrix)
+    best_route = genetic_algorithm(population_size=10, generations=100, points=city_points, matrix=distance_matrix)
+    best_route.calculate_length_G(city_graph)
     print("\nОптимальный маршрут готов")
-    # print("Длина, км:\t\t\t\t\t\t", best_length)
+    print("Длина, км:\t\t\t\t\t\t", best_route.length)
     print("Последовательность, osmnx ids:\t", best_route)
 
     reorder_save_to_csv(input_csv, output_csv, best_route)

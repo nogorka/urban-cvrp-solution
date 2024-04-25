@@ -1,3 +1,4 @@
+import networkx as nx
 import numpy as np
 
 
@@ -19,10 +20,19 @@ class Route:
     def set_length(self, length):
         self.length = length
 
-    def calculate_length(self, matrix):
+    def calculate_length_M(self, matrix):
         distance_bw_points = [
-            matrix[self.points[i].it, self.points[i+1].it]
+            matrix[self.points[i].it, self.points[i + 1].it]
             for i in range(self.size - 1)
         ]
         self.set_length(np.sum(distance_bw_points))
 
+    def calculate_length_G(self, G):
+        R = [p.node_id for p in self.points]
+
+        distance_bw_points = [
+            nx.shortest_path_length(G, source=R[i], target=R[i + 1])
+            for i in range(self.size - 1)
+        ]
+        distance_bw_points.append(nx.shortest_path_length(G, source=R[-1], target=R[0]))
+        return round(np.sum(distance_bw_points))
