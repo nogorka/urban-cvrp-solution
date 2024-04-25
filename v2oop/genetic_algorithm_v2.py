@@ -125,10 +125,20 @@ def hybrid_mutation(route, matrix):
     return rgibnnm_mutation(route, matrix)
 
 
+def simple_mutation(route, rate):
+    new_route = route.points[:]
+    for i in range(1, route.size - 2):  # убираем первую и последнюю точки из отрезков доступных для мутации
+        if np.random.rand() < rate:  # элемент случайности
+            j = np.random.randint(i + 1, route.size - 1)
+            new_route[i:j + 1] = new_route[i:j + 1][::-1]  # смена отрезков из точек в маршруте
+    route.set_points(new_route)
+
+
 def create_offspring(parents, matrix):
     parent1, parent2 = parents[:2]
     offspring = crossover(parent1, parent2, matrix)
-    hybrid_mutation(offspring, matrix)
+    # hybrid_mutation(offspring, matrix)
+    simple_mutation(offspring, 0.1)
     return offspring
 
 
