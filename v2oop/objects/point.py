@@ -10,7 +10,8 @@ class Point:
         self.it = None
 
     def __str__(self):
-        return f'(Node({self.node_id}, {self.lat}, {self.long}))'
+        # return f'(Node({self.node_id}, {self.lat}, {self.long}))'
+        return f'({self.id},{self.it})'
 
     def __repr__(self):
         # return f'({self.id},{self.it}: Node({self.node_id}, {self.lat}, {self.long}))'

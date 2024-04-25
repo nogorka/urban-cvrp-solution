@@ -1,5 +1,5 @@
 import numpy as np
-from random import randint, sample
+from random import randint, sample, choice
 from tqdm import tqdm
 
 from algorithms.graph_algorithms import get_graph, optimize_graph_nx
@@ -91,10 +91,44 @@ def crossover(parent1, parent2, matrix):
     return Route(child)
 
 
+def inversion_mutation(route):
+    # Select two random indices for the inversion mutation
+    idx1, idx2 = sorted(sample(range(route.size), 2))
+
+    inverse_route = route.points[:idx1] + route.points[idx1:idx2][::-1] + route.points[idx2:]
+    route.set_points(inverse_route)
+
+
+def rgibnnm_mutation(route, matrix):
+    # Select a random gene
+    random_gene_idx = randint(0, route.size - 1)
+
+    # Find the nearest neighbor
+    distances = matrix[random_gene_idx]
+    nearest_neighbor = np.argmin(
+        [distances[i] if i != random_gene_idx else float('inf') for i in range(len(distances))])
+
+    # Select a random neighbor of the nearest neighbor within a range (using modulo for wraparound)
+    neighbors = range(max(0, nearest_neighbor - 5), min(route.size, nearest_neighbor + 6))
+    swap_with = choice([route.points[n] for n in neighbors if n != random_gene_idx])
+
+    # Swap random idx point and his nearest neighbor
+    swap_with_idx = route.points.index(swap_with)
+    new_route = route.points[:]
+    new_route[random_gene_idx], new_route[swap_with_idx] = new_route[swap_with_idx], new_route[random_gene_idx]
+    route.set_points(new_route)
+
+
+# Мутация маршрута - Random Gene Inserted beside Nearest Neighbor Mutation
+def hybrid_mutation(route, matrix):
+    inversion_mutation(route)
+    return rgibnnm_mutation(route, matrix)
+
+
 def create_offspring(parents, matrix):
     parent1, parent2 = parents[:2]
     offspring = crossover(parent1, parent2, matrix)
-    # child = mutate(child, mutation_rate)  # случайная мутация
+    hybrid_mutation(offspring, matrix)
     return offspring
 
 
