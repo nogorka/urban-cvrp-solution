@@ -5,7 +5,7 @@ from tqdm import tqdm
 from algorithms.graph_algorithms import get_graph, optimize_graph_nx
 from v2oop.graph import set_node_all_point_list, precompute_distances
 from v2oop.objects.route import Route
-from v2oop.preprocess import read_csv_to_point_list
+from v2oop.preprocess import read_csv_to_point_list, reorder_save_to_csv
 from v2oop.utils import fill_nn_matrix
 
 # Генерация начальной популяции, где одна особь это рандомный маршрут
@@ -170,4 +170,9 @@ if __name__ == "__main__":
     distance_matrix = precompute_distances(graph_nx, city_points)
 
     best_route = genetic_algorithm(population_size=3, generations=10, points=city_points, matrix=distance_matrix)
-    print(best_route)
+    print("\nОптимальный маршрут готов")
+    # print("Длина, км:\t\t\t\t\t\t", best_length)
+    print("Последовательность, osmnx ids:\t", best_route)
+
+    reorder_save_to_csv(input_csv, output_csv, best_route)
+    print("Сохранено в файл:\t\t\t\t", output_csv)
