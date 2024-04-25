@@ -1,5 +1,5 @@
+import numpy as np
 from random import randint, sample
-
 from tqdm import tqdm
 
 from algorithms.graph_algorithms import get_graph, optimize_graph_nx
@@ -64,31 +64,38 @@ def fitness(route, matrix):
     return 1 / route.length
 
 
-def genetic_algorithm(population_size, generations, mutation_rate, points, DM):
+def select_best(population, fitness_values, num_best):
+    # сортировка в порядке убывания по значению приспособленности
+    indices = np.argsort(fitness_values)[-num_best:]
+    return [population[i] for i in indices]
+
+
+def create_offspring(parents, matrix):
+    parent1, parent2 = parents[:2]
+    # child = crossover(parent1, parent2, PID, DM)  # скрещивание родителей
+    # child = mutate(child, mutation_rate)  # случайная мутация
+    return parent1
+
+
+def genetic_algorithm(population_size, generations, points, DM):
     population = generate_initial_population(population_size, points=points)
 
     for _ in tqdm(range(generations), desc="Genetic Algorithm Progress"):
         # Значения приспособленности поколения в полуляции
         fitness_values = [fitness(route, DM) for route in population]
-        print(f'Generation {_ + 1} | Fitness: {fitness_values}')
 
+        best_routes = select_best(population, fitness_values, num_best=2)
 
-#     # Выбор 2 лучших родителей
-#     best_routes = select_best(population, fitness_values, num_best=2)
-#
-#     # Скрещивание и мутация для создания новой популяции
-#     new_population = best_routes
-#     while len(new_population) < population_size:
-#         parent1, parent2 = best_routes[:2]
-#         child = crossover(parent1, parent2, PID, DM)  # скрещивание родителей
-#         child = mutate(child, mutation_rate)  # случайная мутация
-#         new_population.append(child)  # добавление ребенка в новую популяцию
-#
-#     population = new_population
-#
-# # Найденный оптимальный маршрут, выбор первого из списка популяции
-# route = select_best(population, fitness_values, num_best=1)[0]
-# return route[:-1]
+        new_population = best_routes
+        while len(new_population) < population_size:
+            offspring = create_offspring(best_routes, distance_matrix)
+            new_population.append(offspring)
+
+        population = new_population
+
+    # Найденный оптимальный маршрут, выбор первого из списка популяции
+    [route] = select_best(population, fitness_values, num_best=1)
+    return route
 
 
 if __name__ == "__main__":
@@ -107,5 +114,5 @@ if __name__ == "__main__":
 
     distance_matrix = precompute_distances(graph_nx, city_points)
 
-    best_route = genetic_algorithm(population_size=3, generations=10, mutation_rate=0.1, points=city_points,
-                                   DM=distance_matrix)
+    best_route = genetic_algorithm(population_size=3, generations=10, points=city_points, DM=distance_matrix)
+    print(best_route)
