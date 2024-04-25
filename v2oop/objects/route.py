@@ -23,7 +23,7 @@ class Route:
 
     def calculate_length(self, matrix):
         distance_bw_points = [
-            get_distance_from_matrix(self.points[i], self.points[i + 1], matrix)
+            matrix[self.points[i].it, self.points[i+1].it]
             for i in range(self.size - 1)
         ]
         self.set_length(np.sum(distance_bw_points))
