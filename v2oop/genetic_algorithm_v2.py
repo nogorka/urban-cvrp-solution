@@ -1,3 +1,4 @@
+import networkx as nx
 import numpy as np
 from random import randint, sample, choice
 from tqdm import tqdm
@@ -19,10 +20,6 @@ from v2oop.utils import fill_nn_matrix
 Коэффициент следует рассчитывать на основе геодезических координат 
 '''
 
-
-# now i removed fixing first point so later
-# TODO:  don't forget to filter result route and fix first point
-# also I romeved doubling it for the end
 
 def create_random_specimen(route: Route):
     route.set_points(sample(route.points, route.size))
@@ -137,8 +134,8 @@ def simple_mutation(route, rate):
 def create_offspring(parents, matrix):
     parent1, parent2 = parents[:2]
     offspring = crossover(parent1, parent2, matrix)
-    # hybrid_mutation(offspring, matrix)
-    simple_mutation(offspring, 0.1)
+    hybrid_mutation(offspring, matrix)
+    # simple_mutation(offspring, 0.1)
     return offspring
 
 
@@ -188,7 +185,8 @@ if __name__ == "__main__":
     distance_matrix = precompute_distances(graph_nx, city_points)
 
     best_route = genetic_algorithm(population_size=10, generations=100, points=city_points, matrix=distance_matrix)
-    best_route.calculate_length_G(city_graph)
+    G = nx.Graph(city_graph)
+    best_route.calculate_length_G(G)
     print("\nОптимальный маршрут готов")
     print("Длина, км:\t\t\t\t\t\t", best_route.length)
     print("Последовательность, osmnx ids:\t", best_route)
