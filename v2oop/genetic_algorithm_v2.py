@@ -142,7 +142,14 @@ def create_offspring(parents, matrix):
     return offspring
 
 
+def reorder_to_start_point(route, point):
+    index = route.points.index(point)
+    new_route = route.points[index:] + route.points[:index]
+    route.set_points(new_route)
+
+
 def genetic_algorithm(population_size, generations, points, matrix):
+    start_point = points[0]
     population = generate_initial_population(population_size, points=points)
 
     for _ in tqdm(range(generations), desc="Genetic Algorithm Progress"):
@@ -160,6 +167,7 @@ def genetic_algorithm(population_size, generations, points, matrix):
 
     # Найденный оптимальный маршрут, выбор первого из списка популяции
     [route] = select_best(population, fitness_values, num_best=1)
+    reorder_to_start_point(route, start_point)
     return route
 
 

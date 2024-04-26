@@ -36,3 +36,4 @@ class Route:
         ]
         distance_bw_points.append(nx.shortest_path_length(G, source=R[-1], target=R[0]))
         return round(np.sum(distance_bw_points))
+        self.set_length(round(np.sum(distance_bw_points)))
