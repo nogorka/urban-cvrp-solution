@@ -10,7 +10,8 @@ def read_csv_to_point_list(file_path):
     with open(file_path, newline='', encoding='utf-8') as csvfile:
         reader = csv.DictReader(csvfile)
         for row in reader:
-            point = Point(id=row['id'], lat=row['lat'], long=row['long'])
+            d = int(row['total_volume']) - int(row['free_volume'])
+            point = Point(id=row['id'], lat=row['lat'], long=row['long'], demand=d)
             lst.append(point)
     return lst
 

@@ -1,3 +1,5 @@
+import os
+
 import networkx as nx
 import numpy as np
 from random import randint, sample, choice
@@ -19,6 +21,15 @@ from v2oop.utils import fill_nn_matrix
 другая - с учетом коэффициента близости соседа. 
 Коэффициент следует рассчитывать на основе геодезических координат 
 '''
+
+
+def calculate_route_demand(tour):
+    if type(tour) == Route:
+        return np.sum([p.demand for p in tour.points])
+    elif type(tour) == list:
+        return np.sum([p.demand for p in tour])
+    else:
+        return 0
 
 
 def create_random_specimen(route: Route):
@@ -145,8 +156,7 @@ def reorder_to_start_point(route, point):
     route.set_points(new_route)
 
 
-def genetic_algorithm(population_size, generations, points, matrix):
-    start_point = points[0]
+def one_trip(population_size, generations, points, matrix, start_point):
     population = generate_initial_population(population_size, points=points)
 
     for _ in tqdm(range(generations), desc="Genetic Algorithm Progress"):
@@ -165,31 +175,57 @@ def genetic_algorithm(population_size, generations, points, matrix):
     # Найденный оптимальный маршрут, выбор первого из списка популяции
     [route] = select_best(population, fitness_values, num_best=1)
     reorder_to_start_point(route, start_point)
-    return route
+    return [route]
+
+
+def multiple_trips(population_size, generations, points, matrix, start_point):
+    print(f'Multiple Trip')
+    return [Route(points[:len(points) // 2]), Route(points[len(points) // 2:])]
+
+
+def genetic_algorithm(population_size, generations, points, matrix, capacity):
+    start_point = points[0]
+    total_demand = calculate_route_demand(points)
+    print(f'\nTotal demand: {total_demand}')
+    if total_demand < capacity:
+        routes = one_trip(population_size, generations, points, matrix, start_point)
+    else:
+        routes = multiple_trips(population_size, generations, points, matrix, start_point)
+    return routes
 
 
 if __name__ == "__main__":
-    city_name = "Saint Petersburg, Russia"
-    graph_filename = "../public/road_network_graph.pickle"
-    file = '10_ex_1.csv'
+    config = {
+        'city_name': "Saint Petersburg, Russia",
+        'graph_filename': "../public/road_network_graph.pickle",
+        'input_dir': "../public/example_routes/",
+        'output_dir': "../public/result_routes/",
+        'file': '10_ex_1.csv',
+        'vehicle_capacity': 1300
+    }
 
-    city_graph = get_graph(city_name, graph_filename)
+    input_csv = os.path.join(config['input_dir'], config['file'])
+    output_csv = os.path.join(config['output_dir'], config['file'])
+
+    city_graph = get_graph(config['city_name'], config['graph_filename'])
     graph_nx = optimize_graph_nx(city_graph)
-
-    input_csv = f'../public/example_routes/{file}'
-    output_csv = f'../public/result_routes/{file}'
+    G = nx.Graph(city_graph)
 
     city_points = read_csv_to_point_list(input_csv)
     set_node_all_point_list(city_points, city_graph)
 
     distance_matrix = precompute_distances(graph_nx, city_points)
 
-    best_route = genetic_algorithm(population_size=10, generations=100, points=city_points, matrix=distance_matrix)
-    G = nx.Graph(city_graph)
-    best_route.calculate_length_G(G)
+    best_routes = genetic_algorithm(population_size=10, generations=100, points=city_points, matrix=distance_matrix,
+                                    capacity=config['vehicle_capacity'])
     print("\nОптимальный маршрут готов")
-    print("Длина, км:\t\t\t\t\t\t", best_route.length)
-    print("Последовательность, osmnx ids:\t", best_route)
+    print("Количество последовательных обходов:", len(best_routes))
 
-    reorder_save_to_csv(input_csv, output_csv, best_route)
-    print("Сохранено в файл:\t\t\t\t", output_csv)
+    for r in best_routes:
+        r.calculate_length_G(G)
+        print("\n----------------")
+        print("\tДлина, км:\t\t\t\t\t\t", r.length)
+        print("\tПоследовательность, osmnx ids:\t", r)
+
+    # reorder_save_to_csv(input_csv, output_csv, best_routes)
+    # print("Сохранено в файл:\t\t\t\t", output_csv)

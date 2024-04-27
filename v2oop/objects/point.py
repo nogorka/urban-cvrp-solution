@@ -2,12 +2,13 @@ import osmnx as ox
 
 
 class Point:
-    def __init__(self, id, lat, long):
+    def __init__(self, id, lat, long, demand):
         self.id = id
         self.node_id = None
         self.lat = float(lat)
         self.long = float(long)
         self.it = None
+        self.demand = demand
 
     def __str__(self):
         # return f'(Node({self.node_id}, {self.lat}, {self.long}))'
