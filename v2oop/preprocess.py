@@ -7,6 +7,7 @@ import pandas as pd
 from algorithms.graph_algorithms import get_graph, optimize_graph_nx
 from v2oop.graph import set_node_all_point_list, precompute_distances
 from objects.point import Point
+from server.model import Point as PointModel
 
 
 def read_csv_to_point_list(file_path):
@@ -31,6 +32,22 @@ def reorder_save_to_csv(input, output, route):
     df_reordered = df_selected.set_index('id').loc[keys].reset_index()
 
     df_reordered.to_csv(output, index=False)
+
+
+def points_to_points(points: PointModel):
+    lst = []
+
+    for p in points:
+        print(p)
+        d = p.total_volume - p.free_volume
+        point = Point(id=p.id, lat=p.lat, long=p.long, demand=d)
+        lst.append(point)
+    return lst
+
+
+def reorder_points_json(points, route):
+    id_to_index = {point.id: (index, point) for index, point in enumerate(route)}
+    return sorted(points, key=lambda x: id_to_index.get(x.id, float('inf')))
 
 
 def get_meta_data(config, filename):
