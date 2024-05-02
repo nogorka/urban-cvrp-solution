@@ -5,6 +5,7 @@ from tqdm import tqdm
 from v2oop.genetic_algorithm_tsp import create_nn_dependant_specimens, create_random_specimen, select_best
 from v2oop.objects.route import Route
 from v2oop.preprocess import get_meta_data
+from v3_cvrp.crossover import crossover
 from v3_cvrp.individual import Individual
 
 # Генерация начальной популяции, где одна особь это рандомный маршрут
@@ -88,84 +89,10 @@ def fitness(individual, matrix, vehicle_capacity):
 #                     route.points[i], route.points[j] = route.points[j], route.points[i]
 #                     break
 
-def calc_prob(route, matrix):
-    # Calculate selection probabilities based on distances
-    prob = []
-    for i in range(route.size - 1):
-        dist = matrix[route.points[i].it, route.points[i + 1].it]
-        prob.append(1 / (dist if dist > 0 else 1))  # probability is higher for shorter distances
-
-    # Normalize probabilities
-    prob = np.array(prob) / np.sum(prob)
-    return prob
-
-
-def get_available_points(pool_route, tour_set):
-    return set(pool_route.points.copy()).difference(tour_set)
-
-
-def choose_point_based_prob_set(pool_route, tour_set, prob):
-    available_pool_points = get_available_points(pool_route, tour_set)
-    chosen_point = list(tour_set)[-1] if len(tour_set) > 0 else None
-
-    while available_pool_points:
-        chosen_index = np.random.choice(range(pool_route.size - 1), p=prob)
-        chosen_point = pool_route.get_point(chosen_index)
-        if chosen_point in available_pool_points:
-            pool_route.pop_point(chosen_index)
-            break
-    return chosen_point
-
-
-def can_add_any_point(points, current_demand, vehicle_capacity):
-    return any(point.demand + current_demand <= vehicle_capacity for point in points)
-
-
-def enhanced_crossover(parent1, parent2, matrix, vehicle_capacity):
-    point_pool = [point for route in parent1.routes for point in route.points] + \
-                 [point for route in parent2.routes for point in route.points]
-    n_points = len(point_pool) / 2
-    point_pool_route = Route(point_pool)
-    prob = calc_prob(point_pool_route, matrix)
-
-    offspring = Individual()
-    cur_tour = []
-    cur_tour_set = set()
-    current_demand = 0
-
-    while len(cur_tour_set) < n_points:
-        available_points = get_available_points(point_pool_route, cur_tour_set)
-        can_be_added = can_add_any_point(available_points, current_demand, vehicle_capacity)
-        if not can_be_added:
-            if cur_tour:
-                offspring.add_route(Route(cur_tour))
-            cur_tour = []
-            current_demand = 0
-
-        if point_pool_route.size > 1:
-            chosen_point = choose_point_based_prob_set(point_pool_route, cur_tour_set, prob)
-            prob = calc_prob(point_pool_route, matrix) if point_pool_route.size > 1 else np.array([])
-        else:
-            chosen_point = point_pool_route.pop_point(0)
-
-        # Add the chosen point if it fits the capacity
-        if current_demand + chosen_point.demand <= vehicle_capacity:
-            cur_tour.append(chosen_point)
-            current_demand += chosen_point.demand
-            cur_tour_set.add(chosen_point)
-        else:
-            point_pool_route.add_point(chosen_point)
-            prob = calc_prob(point_pool_route, matrix)
-
-    if cur_tour:
-        offspring.add_route(Route(cur_tour))
-
-    return offspring
-
 
 def create_offspring(parents, matrix, vehicle_capacity):
     parent1, parent2 = parents[:2]
-    offspring = enhanced_crossover(parent1, parent2, matrix, vehicle_capacity)
+    offspring = crossover(parent1, parent2, matrix, vehicle_capacity)
     # capacity_constrained_mutation(offspring, 0.1, vehicle_capacity)
 
     return offspring
@@ -180,12 +107,10 @@ def create_offspring(parents, matrix, vehicle_capacity):
 def genetic_algorithm(population_size, generations, points, matrix, capacity):
     start_point = points[0]
     population = generate_initial_population(population_size, points, capacity)
-    print(population)
 
     for _ in tqdm(range(generations), desc="Genetic Algorithm Progress"):
         # Значения приспособленности поколения в полуляции
         fitness_values = [fitness(route, matrix, capacity) for route in population]
-        print(fitness_values)
 
         best_routes = select_best(population, fitness_values, num_best=2)
 
