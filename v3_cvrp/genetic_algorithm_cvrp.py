@@ -100,9 +100,14 @@ def calc_prob(route, matrix):
     return prob
 
 
+def get_available_points(pool_route, tour_set):
+    return set(pool_route.points.copy()).difference(tour_set)
+
+
 def choose_point_based_prob_set(pool_route, tour_set, prob):
-    available_pool_points = set(pool_route.points.copy()).difference(tour_set)
+    available_pool_points = get_available_points(pool_route, tour_set)
     chosen_point = list(tour_set)[-1] if len(tour_set) > 0 else None
+
     while available_pool_points:
         chosen_index = np.random.choice(range(pool_route.size - 1), p=prob)
         chosen_point = pool_route.get_point(chosen_index)
@@ -110,6 +115,10 @@ def choose_point_based_prob_set(pool_route, tour_set, prob):
             pool_route.pop_point(chosen_index)
             break
     return chosen_point
+
+
+def can_add_any_point(points, current_demand, vehicle_capacity):
+    return any(point.demand + current_demand <= vehicle_capacity for point in points)
 
 
 def enhanced_crossover(parent1, parent2, matrix, vehicle_capacity):
@@ -125,40 +134,29 @@ def enhanced_crossover(parent1, parent2, matrix, vehicle_capacity):
     current_demand = 0
 
     while len(cur_tour_set) < n_points:
-        print(point_pool_route.points)
-        print(cur_tour_set)
-        print(current_demand)
-        if current_demand < vehicle_capacity:
-            # Choose a point based on the defined probabilities
-            if point_pool_route.size > 1:
-                chosen_point = choose_point_based_prob_set(point_pool_route, cur_tour_set, prob)
-                prob = calc_prob(point_pool_route, matrix) if point_pool_route.size > 1 else np.array([])
-            else:
-                chosen_point = point_pool_route.pop_point(0)
-            print(f'chosen point: {chosen_point}')
-
-        else:
-
-            # If the current route is full, start a new route
-            offspring.add_route(Route(cur_tour))
-            print(f'added route: {cur_tour}')
+        available_points = get_available_points(point_pool_route, cur_tour_set)
+        can_be_added = can_add_any_point(available_points, current_demand, vehicle_capacity)
+        if not can_be_added:
+            if cur_tour:
+                offspring.add_route(Route(cur_tour))
             cur_tour = []
             current_demand = 0
-            continue
+
+        if point_pool_route.size > 1:
+            chosen_point = choose_point_based_prob_set(point_pool_route, cur_tour_set, prob)
+            prob = calc_prob(point_pool_route, matrix) if point_pool_route.size > 1 else np.array([])
+        else:
+            chosen_point = point_pool_route.pop_point(0)
 
         # Add the chosen point if it fits the capacity
-        print(f'current demand: {current_demand}', f'chosen demand {chosen_point.demand}')
         if current_demand + chosen_point.demand <= vehicle_capacity:
             cur_tour.append(chosen_point)
             current_demand += chosen_point.demand
             cur_tour_set.add(chosen_point)
         else:
-            # Otherwise, place it back and try another point
             point_pool_route.add_point(chosen_point)
-            shuffle(point_pool)
             prob = calc_prob(point_pool_route, matrix)
 
-    # Add the last route if it has any points
     if cur_tour:
         offspring.add_route(Route(cur_tour))
 
