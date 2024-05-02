@@ -26,6 +26,7 @@ class Route:
             for i in range(self.size - 1)
         ]
         self.set_length(np.sum(distance_bw_points))
+        return self.length
 
     def calculate_length_G(self, G):
         R = [p.node_id for p in self.points]
@@ -36,3 +37,4 @@ class Route:
         ]
         distance_bw_points.append(nx.shortest_path_length(G, source=R[-1], target=R[0]))
         self.set_length(round(np.sum(distance_bw_points)))
+        return self.length
