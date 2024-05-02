@@ -17,15 +17,6 @@ from v2oop.utils import fill_nn_matrix
 '''
 
 
-def calculate_route_demand(tour):
-    if type(tour) == Route:
-        return np.sum([p.demand for p in tour.points])
-    elif type(tour) == list:
-        return np.sum([p.demand for p in tour])
-    else:
-        return 0
-
-
 def create_random_specimen(route: Route):
     route.set_points(sample(route.points, route.size))
 
