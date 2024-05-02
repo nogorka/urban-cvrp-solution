@@ -17,7 +17,7 @@ def calc_prob(points, matrix):
 
 
 def get_available_points(pool, tour_set):
-    return set(pool[:]).difference(tour_set)
+    return set(pool).difference(tour_set)
 
 
 def choose_point_based_prob_set(pool, tour_set, prob):
@@ -44,35 +44,35 @@ def crossover(parent1, parent2, matrix, vehicle_capacity):
     prob = calc_prob(pool, matrix)
 
     offspring = Individual()
-    cur_tour = []
-    cur_tour_set = set()
+    current_route = []
+    used_points_set = set()
     current_demand = 0
 
-    while len(cur_tour_set) < n_points:
-        available_points = get_available_points(pool, cur_tour_set)
+    while len(used_points_set) < n_points:
+        available_points = get_available_points(pool, used_points_set)
         can_be_added = can_add_any_point(available_points, current_demand, vehicle_capacity)
         if not can_be_added:
-            if cur_tour:
-                offspring.add_route(Route(cur_tour))
-            cur_tour = []
+            if current_route:
+                offspring.add_route(Route(current_route))
+            current_route = []
             current_demand = 0
 
         if len(pool) > 1:
-            chosen_point = choose_point_based_prob_set(pool, cur_tour_set, prob)
+            chosen_point = choose_point_based_prob_set(pool, used_points_set, prob)
             prob = calc_prob(pool, matrix) if len(pool) > 1 else np.array([])
         else:
             chosen_point = pool.pop(0)
 
         # Add the chosen point if it fits the capacity
         if current_demand + chosen_point.demand <= vehicle_capacity:
-            cur_tour.append(chosen_point)
+            current_route.append(chosen_point)
             current_demand += chosen_point.demand
-            cur_tour_set.add(chosen_point)
+            used_points_set.add(chosen_point)
         else:
             pool.append(chosen_point)
             prob = calc_prob(pool, matrix)
 
-    if cur_tour:
-        offspring.add_route(Route(cur_tour))
+    if current_route:
+        offspring.add_route(Route(current_route))
 
     return offspring
