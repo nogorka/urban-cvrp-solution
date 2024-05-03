@@ -26,8 +26,8 @@ def crossover(parent1, parent2, matrix, vehicle_capacity, depot):
 
     offspring = Individual()
     current_route = [depot]
-    used_points_set = set()
-    available_points_set = set(pool)
+    used_points_set = []
+    available_points_set = list(set(pool))
     current_demand = 0
 
     while len(used_points_set) < n_points:
@@ -38,8 +38,8 @@ def crossover(parent1, parent2, matrix, vehicle_capacity, depot):
             current_route = [depot]
             current_demand = 0
 
-        if len(pool) > 1:
-            chosen_point = list(used_points_set)[-1] if len(used_points_set) > 0 else None
+        if len(available_points_set) > 1:
+            chosen_point = used_points_set[-1] if len(used_points_set) > 0 else None
 
             while available_points_set:
                 chosen_index = np.random.choice(range(len(pool) - 1), p=prob)
@@ -50,14 +50,15 @@ def crossover(parent1, parent2, matrix, vehicle_capacity, depot):
 
             prob = calc_prob(pool, matrix) if len(pool) > 1 else np.array([])
         else:
-            chosen_point = pool.pop(0)
+            last_index = pool.index(available_points_set[-1])
+            chosen_point = pool.pop(last_index)
 
         # Add the chosen point if it fits the capacity
         if current_demand + chosen_point.demand <= vehicle_capacity:
             current_route.append(chosen_point)
             current_demand += chosen_point.demand
-            used_points_set.add(chosen_point)
-            available_points_set = set(pool).difference(used_points_set)
+            used_points_set.append(chosen_point)
+            available_points_set = [point for point in pool if point not in used_points_set]
         else:
             pool.append(chosen_point)
             prob = calc_prob(pool, matrix)
