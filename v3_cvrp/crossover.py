@@ -37,14 +37,16 @@ def can_add_any_point(points, current_demand, vehicle_capacity):
     return any(point.demand + current_demand <= vehicle_capacity for point in points)
 
 
-def crossover(parent1, parent2, matrix, vehicle_capacity):
-    pool = [point for route in parent1.routes for point in route.points] + \
-                 [point for route in parent2.routes for point in route.points]
+def crossover(parent1, parent2, matrix, vehicle_capacity, depot):
+    # create point pool and exclude depot points
+    pool = [point for route in parent1.routes for point in route.points[1:]] + \
+                 [point for route in parent2.routes for point in route.points[1:]]
+
     n_points = len(pool) / 2
     prob = calc_prob(pool, matrix)
 
     offspring = Individual()
-    current_route = []
+    current_route = [depot]
     used_points_set = set()
     current_demand = 0
 
@@ -54,7 +56,7 @@ def crossover(parent1, parent2, matrix, vehicle_capacity):
         if not can_be_added:
             if current_route:
                 offspring.add_route(Route(current_route))
-            current_route = []
+            current_route = [depot]
             current_demand = 0
 
         if len(pool) > 1:

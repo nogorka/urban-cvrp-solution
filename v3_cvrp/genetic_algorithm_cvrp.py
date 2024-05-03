@@ -3,7 +3,8 @@ from tqdm import tqdm
 from v2oop.genetic_algorithm_tsp import select_best
 from v2oop.preprocess import get_meta_data, convert_route_to_obj, save_json
 from v3_cvrp.crossover import crossover
-from initial_population import generate_initial_population
+from v3_cvrp.initial_population import generate_initial_population
+from v3_cvrp.mutation import hybrid_mutation
 
 # Генерация начальной популяции, где одна особь это рандомный маршрут
 # изначальная структура данных (dict) не позволяют хранить закальцованный
@@ -39,9 +40,9 @@ def fitness(individual, matrix, vehicle_capacity):
     return fitness_value
 
 
-def create_offspring(parents, matrix, vehicle_capacity):
+def create_offspring(parents, matrix, vehicle_capacity, depot):
     parent1, parent2 = parents[:2]
-    offspring = crossover(parent1, parent2, matrix, vehicle_capacity)
+    offspring = crossover(parent1, parent2, matrix, vehicle_capacity, depot)
     hybrid_mutation(offspring, vehicle_capacity, mutation_rate=0.1)
     return offspring
 
@@ -54,7 +55,7 @@ def create_offspring(parents, matrix, vehicle_capacity):
 
 def genetic_algorithm(population_size, generations, points, matrix, capacity):
     start_point = points[0]
-    population = generate_initial_population(population_size, points, capacity)
+    population = generate_initial_population(population_size, points, capacity, start_point)
 
     for _ in tqdm(range(generations), desc="Genetic Algorithm Progress"):
         # Значения приспособленности поколения в полуляции
@@ -64,7 +65,7 @@ def genetic_algorithm(population_size, generations, points, matrix, capacity):
 
         new_population = best_routes
         while len(new_population) < population_size:
-            offspring = create_offspring(best_routes, matrix, capacity)
+            offspring = create_offspring(best_routes, matrix, capacity, start_point)
             new_population.append(offspring)
 
         population = new_population
