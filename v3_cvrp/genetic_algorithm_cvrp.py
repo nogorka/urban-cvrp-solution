@@ -6,27 +6,18 @@ from v3_cvrp.crossover import crossover
 from v3_cvrp.initial_population import generate_initial_population
 from v3_cvrp.mutation import hybrid_mutation
 
-# Генерация начальной популяции, где одна особь это рандомный маршрут
-# изначальная структура данных (dict) не позволяют хранить закальцованный
-# маршрут, поэтому последняя точка добавляется искуственно.
-# Они должны совпадать тк машина доkжна вернуться назад на склад
-
-'''создание начальной популяции: 
-только половина особей должна быть сгенерирована случайно, 
-другая - с учетом коэффициента близости соседа. 
-Коэффициент следует рассчитывать на основе геодезических координат 
-'''
-
 
 # если машина загружена больше чем возможно то штрафуем иначе штраф 0
-def calculate_capacity_penalty(individual, vehicle_capacity, penalty_rate=0.8):
+def calculate_capacity_penalty(individual, vehicle_capacity, penalty_rate=0.8, penalty_weight=3):
     penalty = 0
     for route in individual.routes:
         route_demand = route.calculate_demand()
-        # print(f'route demand {route_demand}', abs(route_demand - vehicle_capacity) * penalty_rate)
         if route_demand > vehicle_capacity:
-            penalty += (route_demand - vehicle_capacity) * penalty_rate
-    return penalty
+            excess = abs(route_demand - vehicle_capacity)
+            penalty += excess / vehicle_capacity ** penalty_rate
+            # print(f'route demand {route_demand}', excess / vehicle_capacity ** penalty_rate)
+
+    return penalty * penalty_weight
 
 
 def fitness(individual, matrix, vehicle_capacity):
@@ -36,7 +27,8 @@ def fitness(individual, matrix, vehicle_capacity):
     total_distance = individual.calculate_distance(matrix)
     capacity_penalty = calculate_capacity_penalty(individual, vehicle_capacity)
 
-    fitness_value = (1 / total_distance) + capacity_penalty
+    # print(f'Total distance ${1 / total_distance} \t Capacity penalty: {capacity_penalty}')
+    fitness_value = (1 / total_distance) * capacity_penalty
     return fitness_value
 
 
@@ -45,12 +37,6 @@ def create_offspring(parents, matrix, vehicle_capacity, depot):
     offspring = crossover(parent1, parent2, matrix, vehicle_capacity, depot)
     hybrid_mutation(offspring, vehicle_capacity, mutation_rate=0.1)
     return offspring
-
-
-# def reorder_to_start_point(route, point):
-#     index = route.points.index(point)
-#     new_route = route.points[index:] + route.points[:index]
-#     route.set_points(new_route)
 
 
 def genetic_algorithm(population_size, generations, points, matrix, capacity):
@@ -72,7 +58,6 @@ def genetic_algorithm(population_size, generations, points, matrix, capacity):
 
     # Найденный оптимальный маршрут, выбор первого из списка популяции
     [route] = select_best(population, fitness_values, num_best=1)
-    # reorder_to_start_point(route, start_point)
     return route
 
 
@@ -88,7 +73,7 @@ if __name__ == "__main__":
 
     distance_matrix, city_points, input_csv, output_csv, G = get_meta_data(config, config['file'])
 
-    best_route = genetic_algorithm(population_size=10, generations=5, points=city_points, matrix=distance_matrix,
+    best_route = genetic_algorithm(population_size=10, generations=10, points=city_points, matrix=distance_matrix,
                                    capacity=config['vehicle_capacity'])
 
     data = convert_route_to_obj(best_route, input_csv)
