@@ -7,6 +7,7 @@ from v2oop.objects.route import Route
 from v2oop.preprocess import get_meta_data
 from v3_cvrp.crossover import crossover
 from v3_cvrp.individual import Individual
+from v3_cvrp.mutation import hybrid_mutation
 
 # Генерация начальной популяции, где одна особь это рандомный маршрут
 # изначальная структура данных (dict) не позволяют хранить закальцованный
@@ -78,23 +79,10 @@ def fitness(individual, matrix, vehicle_capacity):
     return fitness_value
 
 
-# def capacity_constrained_mutation(route, rate, vehicle_capacity):
-#     for i in range(route.size):
-#         if np.random.rand() < rate:
-#             for swap_attempt in range(100):  # Limit the number of swap attempts
-#                 j = np.random.randint(route.size)
-#                 # Check if swapping does not exceed capacity
-#                 if i != j and abs(route.points[i].demand - route.points[j].demand) <= (
-#                         vehicle_capacity - calculate_route_demand(route)):
-#                     route.points[i], route.points[j] = route.points[j], route.points[i]
-#                     break
-
-
 def create_offspring(parents, matrix, vehicle_capacity):
     parent1, parent2 = parents[:2]
     offspring = crossover(parent1, parent2, matrix, vehicle_capacity)
-    # capacity_constrained_mutation(offspring, 0.1, vehicle_capacity)
-
+    hybrid_mutation(offspring, mutation_rate=0.1)
     return offspring
 
 
