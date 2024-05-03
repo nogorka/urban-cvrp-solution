@@ -1,7 +1,7 @@
 import os
 from algorithms.graph_algorithms import get_graph, optimize_graph_nx
 from preprocessing.input_preprocess import get_all_filenames
-from v2oop.genetic_algorithm_v2 import genetic_algorithm
+from v2oop.genetic_algorithm_tsp import genetic_algorithm
 from v2oop.graph import set_node_all_point_list, precompute_distances
 from v2oop.preprocess import read_csv_to_point_list, reorder_save_to_csv
 
