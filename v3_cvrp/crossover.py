@@ -47,18 +47,17 @@ def crossover(parent1, parent2, matrix, capacity, depot):
                 chosen_point = pool[chosen_index]
         else:
             chosen_index = pool.index(available_points_set[-1])
-        chosen_point = pool.pop(chosen_index)
+            chosen_point = pool[chosen_index]
 
         # Add the chosen point if it fits the capacity
         if can_fit_vehicle(chosen_point, current_demand, capacity):
+            pool.pop(chosen_index)
+
             current_route.append(chosen_point)
             current_demand += chosen_point.demand
             available_points_set.remove(chosen_point)
-        else:
-            # return to pool else
-            pool.append(chosen_point)
 
-        prob = calc_prob(pool, matrix)
+            prob = calc_prob(pool, matrix)
 
     if current_route:
         offspring.add_route(Route(current_route))
