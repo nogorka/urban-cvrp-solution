@@ -16,7 +16,11 @@ def calc_prob(points, matrix):
     return prob
 
 
-def crossover(parent1, parent2, matrix, vehicle_capacity, depot):
+def can_fit_vehicle(extra_point, current_demand, vehicle_capacity):
+    return extra_point.demand + current_demand <= vehicle_capacity
+
+
+def crossover(parent1, parent2, matrix, capacity, depot):
     # create point pool and exclude depot points
     pool = [point for route in parent1.routes for point in route.points[1:]] + \
            [point for route in parent2.routes for point in route.points[1:]]
@@ -26,42 +30,37 @@ def crossover(parent1, parent2, matrix, vehicle_capacity, depot):
 
     offspring = Individual()
     current_route = [depot]
-    used_points_set = []
     available_points_set = list(set(pool))
     current_demand = 0
 
-    while len(used_points_set) < n_points:
-        can_be_added = any(point.demand + current_demand <= vehicle_capacity for point in available_points_set)
+    while len(available_points_set) > 0:
+        can_be_added = any(can_fit_vehicle(point, current_demand, capacity) for point in available_points_set)
         if not can_be_added:
             if current_route:
                 offspring.add_route(Route(current_route))
             current_route = [depot]
             current_demand = 0
 
+        chosen_index = None
         if len(available_points_set) > 1:
-            chosen_point = used_points_set[-1] if len(used_points_set) > 0 else None
-
-            while available_points_set:
+            current_point = None
+            while available_points_set and current_point not in available_points_set:
                 chosen_index = np.random.choice(range(len(pool) - 1), p=prob)
-                chosen_point = pool[chosen_index]
-                if chosen_point in available_points_set:
-                    pool.pop(chosen_index)
-                    break
-
-            prob = calc_prob(pool, matrix) if len(pool) > 1 else np.array([])
+                current_point = pool[chosen_index]
         else:
-            last_index = pool.index(available_points_set[-1])
-            chosen_point = pool.pop(last_index)
+            chosen_index = pool.index(available_points_set[-1])
+        chosen_point = pool.pop(chosen_index)
 
         # Add the chosen point if it fits the capacity
-        if current_demand + chosen_point.demand <= vehicle_capacity:
+        if can_fit_vehicle(chosen_point, current_demand, capacity):
             current_route.append(chosen_point)
             current_demand += chosen_point.demand
-            used_points_set.append(chosen_point)
-            available_points_set = [point for point in pool if point not in used_points_set]
+            available_points_set.remove(chosen_point)
         else:
+            # return to pool else
             pool.append(chosen_point)
-            prob = calc_prob(pool, matrix)
+
+        prob = calc_prob(pool, matrix)
 
     if current_route:
         offspring.add_route(Route(current_route))
