@@ -1,10 +1,11 @@
-import numpy as np
-from random import randint, sample, choice, shuffle
+import json
+
+from random import sample
 from tqdm import tqdm
 
-from v2oop.genetic_algorithm_tsp import create_nn_dependant_specimens, create_random_specimen, select_best
+from v2oop.genetic_algorithm_tsp import select_best
 from v2oop.objects.route import Route
-from v2oop.preprocess import get_meta_data
+from v2oop.preprocess import get_meta_data, convert_route_to_obj, save_json
 from v3_cvrp.crossover import crossover
 from v3_cvrp.individual import Individual
 from v3_cvrp.mutation import hybrid_mutation
@@ -129,6 +130,11 @@ if __name__ == "__main__":
 
     best_route = genetic_algorithm(population_size=10, generations=5, points=city_points, matrix=distance_matrix,
                                    capacity=config['vehicle_capacity'])
+
+    data = convert_route_to_obj(best_route, input_csv)
+    output = output_csv.replace(".csv", ".json")
+    save_json(data, output)
+
     print("\nОптимальный маршрут готов")
 
     # best_route.calculate_length_G(G)

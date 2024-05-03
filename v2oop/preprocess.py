@@ -1,4 +1,5 @@
 import csv
+import json
 import os
 import networkx as nx
 import pandas as pd
@@ -46,3 +47,14 @@ def get_meta_data(config, filename):
     distance_matrix = precompute_distances(graph_nx, city_points)
 
     return distance_matrix, city_points, input_csv, output_csv, G
+
+
+def convert_route_to_obj(individual, input_csv):
+    with open(input_csv, newline='', encoding='utf-8') as csvfile:
+        city_points = {row['id']: row for row in csv.DictReader(csvfile)}
+    return [[city_points[p.id] for p in r.points] for r in individual.routes]
+
+
+def save_json(data, filename):
+    with open(filename, 'w', encoding='utf-8') as outfile:
+        json.dump(data, outfile, ensure_ascii=False, indent=4)
