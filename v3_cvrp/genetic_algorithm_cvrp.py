@@ -82,7 +82,7 @@ def fitness(individual, matrix, vehicle_capacity):
 def create_offspring(parents, matrix, vehicle_capacity):
     parent1, parent2 = parents[:2]
     offspring = crossover(parent1, parent2, matrix, vehicle_capacity)
-    hybrid_mutation(offspring, mutation_rate=0.1)
+    hybrid_mutation(offspring, vehicle_capacity, mutation_rate=0.1)
     return offspring
 
 
