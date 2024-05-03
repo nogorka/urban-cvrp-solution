@@ -25,7 +25,6 @@ def crossover(parent1, parent2, matrix, capacity, depot):
     pool = [point for route in parent1.routes for point in route.points[1:]] + \
            [point for route in parent2.routes for point in route.points[1:]]
 
-    n_points = len(pool) / 2
     prob = calc_prob(pool, matrix)
 
     offspring = Individual()
@@ -41,12 +40,11 @@ def crossover(parent1, parent2, matrix, capacity, depot):
             current_route = [depot]
             current_demand = 0
 
-        chosen_index = None
+        chosen_point, chosen_index = None, None
         if len(available_points_set) > 1:
-            current_point = None
-            while available_points_set and current_point not in available_points_set:
+            while available_points_set and chosen_point not in available_points_set:
                 chosen_index = np.random.choice(range(len(pool) - 1), p=prob)
-                current_point = pool[chosen_index]
+                chosen_point = pool[chosen_index]
         else:
             chosen_index = pool.index(available_points_set[-1])
         chosen_point = pool.pop(chosen_index)
