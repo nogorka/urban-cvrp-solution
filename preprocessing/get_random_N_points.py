@@ -11,5 +11,5 @@ def generate_batch(input_csv, output_csv, n_samples):
 if __name__ == "__main__":
     n_samples = 50
     input_csv = '../public/locations_data.csv'
-    output_csv = f'../public/{n_samples}_ex_15.csv'
+    output_csv = f'../public/{n_samples}_ex.csv'
     generate_batch(input_csv, output_csv, n_samples)
