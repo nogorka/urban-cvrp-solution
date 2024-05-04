@@ -1,7 +1,7 @@
 from tqdm import tqdm
 
 from v2oop.genetic_algorithm_tsp import select_best
-from v2oop.preprocess import get_meta_data, convert_route_to_obj, save_json
+from v2oop.preprocess import get_meta_data, save_obj_to_json_file, convert_individual_to_obj_csv_based
 from v3_cvrp.crossover import crossover
 from v3_cvrp.fitness import fitness
 from v3_cvrp.initial_population import generate_initial_population
@@ -93,9 +93,9 @@ if __name__ == "__main__":
     best_route = genetic_algorithm(points=city_points, matrix=distance_matrix, capacity=config['vehicle_capacity'],
                                    tuning=settings)
 
-    data = convert_route_to_obj(best_route, input_csv)
+    data = convert_individual_to_obj_csv_based(best_route, input_csv)
     output = output_csv.replace(".csv", ".json")
-    save_json(data, output)
+    save_obj_to_json_file(data, output)
 
     print("\nОптимальный маршрут готов")
 
