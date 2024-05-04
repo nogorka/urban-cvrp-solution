@@ -4,13 +4,13 @@ from server.model import Point
 from server.mongo import get_routes_collection
 
 
-def save_route(route):
+def save_route(individual_list):
     routes_collection = get_routes_collection()
 
-    json_route = [point.json() for point in route]
+    json_data = [[point.json() for point in route] for route in individual_list]
 
     entry = {
-        'route': json_route,
+        'route': json_data,
         "date": datetime.datetime.now(tz=datetime.timezone.utc),
     }
     ins_id = routes_collection.insert_one(entry).inserted_id
