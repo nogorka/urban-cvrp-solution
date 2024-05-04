@@ -7,17 +7,29 @@ from v3_cvrp.initial_population import generate_initial_population
 from v3_cvrp.mutation import hybrid_mutation
 
 
-# если машина загружена больше чем возможно то штрафуем иначе штраф 0
-def calculate_capacity_penalty(individual, vehicle_capacity, penalty_rate=0.8, penalty_weight=3):
+# если машина загружена больше чем возможно или почти не занружена то штрафуем иначе штраф 0
+def calculate_capacity_penalty(individual, vehicle_capacity,
+                               over_penalty_rate=0.8, under_penalty_rate=0.5, penalty_weight=3):
     penalty = 0
     for route in individual.routes:
         route_demand = route.calculate_demand()
         if route_demand > vehicle_capacity:
-            excess = abs(route_demand - vehicle_capacity)
-            penalty += excess / vehicle_capacity ** penalty_rate
-            # print(f'route demand {route_demand}', excess / vehicle_capacity ** penalty_rate)
-
+            excess = route_demand - vehicle_capacity
+            penalty += (excess / vehicle_capacity) ** over_penalty_rate
+        elif route_demand < vehicle_capacity:
+            shortage = vehicle_capacity - route_demand
+            penalty += (shortage / vehicle_capacity) ** under_penalty_rate
     return penalty * penalty_weight
+
+
+def calculate_route_compactness_bonus(individual, matrix,
+                                      bonus_rate=0.2, bonus_weight=1, desired_threshold=250000):
+    bonus = 0
+    for route in individual.routes:
+        distance = route.calculate_length_M(matrix)
+        if distance < desired_threshold:
+            bonus += bonus_weight
+    return bonus * bonus_rate
 
 
 def fitness(individual, matrix, vehicle_capacity):
@@ -26,9 +38,10 @@ def fitness(individual, matrix, vehicle_capacity):
 
     total_distance = individual.calculate_distance(matrix)
     capacity_penalty = calculate_capacity_penalty(individual, vehicle_capacity)
+    compactness_bonus = calculate_route_compactness_bonus(individual, matrix)
 
-    # print(f'Total distance ${1 / total_distance} \t Capacity penalty: {capacity_penalty}')
-    fitness_value = (1 / total_distance) * capacity_penalty
+    # print(1 / total_distance, capacity_penalty, compactness_bonus)
+    fitness_value = (1 / total_distance) * (capacity_penalty - compactness_bonus)
     return fitness_value
 
 
@@ -67,7 +80,7 @@ if __name__ == "__main__":
         'graph_filename': "../public/road_network_graph.pickle",
         'input_dir': "../public/example_routes/",
         'output_dir': "../public/result_routes/",
-        'file': '10_ex_1.csv',
+        'file': '30_ex_10.csv',
         'vehicle_capacity': 1000,
     }
 
@@ -86,6 +99,8 @@ if __name__ == "__main__":
     print("\n----------------")
     print("\tДлина, км:\t\t\t\t\t\t", best_route.distance)
     print("\tПоследовательность, osmnx ids:\t", best_route)
+    for route in best_route.routes:
+        print(f'Route distance: {route.length}')
 
     # reorder_save_to_csv(input_csv, output_csv, best_route)
     # print("Сохранено в файл:\t\t\t\t", output_csv)

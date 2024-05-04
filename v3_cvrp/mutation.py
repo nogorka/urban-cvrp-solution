@@ -4,9 +4,11 @@ from random import choice, randint
 
 def hybrid_mutation(individual, capacity, mutation_rate=0.1):
     if np.random.rand() < mutation_rate:
-        pool = [swap_mutation, inter_route_swap_mutation, relocation_mutation, inversion_mutation]
+        pool = [swap_mutation, inter_route_swap_mutation, inversion_mutation]
         mutation = choice(pool)
         mutation(individual, capacity)
+    else:
+        relocation_mutation(individual, capacity)
 
 
 def can_add_point_to_route(point, route, capacity):
