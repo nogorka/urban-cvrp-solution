@@ -1,7 +1,7 @@
 import numpy as np
 from random import randint, sample, choice
 from tqdm import tqdm
-from v2oop.objects.route import Route
+from objects.route import Route
 from v2oop.preprocess import reorder_save_to_csv, get_meta_data
 from v2oop.utils import fill_nn_matrix
 

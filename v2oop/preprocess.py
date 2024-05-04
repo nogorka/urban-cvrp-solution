@@ -6,7 +6,7 @@ import pandas as pd
 
 from algorithms.graph_algorithms import get_graph, optimize_graph_nx
 from v2oop.graph import set_node_all_point_list, precompute_distances
-from v2oop.objects.point import Point
+from objects.point import Point
 
 
 def read_csv_to_point_list(file_path):

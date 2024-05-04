@@ -1,8 +1,8 @@
 from random import sample, randint
 
-from v2oop.objects.route import Route
+from objects.route import Route
 from v2oop.utils import fill_nn_matrix
-from v3_cvrp.individual import Individual
+from objects.individual import Individual
 
 
 def create_random_based_feasible_route(available_points, vehicle_capacity, depot):

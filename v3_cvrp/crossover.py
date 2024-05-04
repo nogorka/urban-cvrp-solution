@@ -1,7 +1,7 @@
 import numpy as np
 
-from v2oop.objects.route import Route
-from v3_cvrp.individual import Individual
+from objects.route import Route
+from objects.individual import Individual
 
 
 def calc_prob(points, matrix):
