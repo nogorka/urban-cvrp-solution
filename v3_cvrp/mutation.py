@@ -18,8 +18,8 @@ def swap_mutation(individual, capacity=None):
     """swaps two randomly chosen points within selected route"""
 
     route = choice(individual.routes)
-    if route.size > 2:
-        i, j = np.random.choice(range(1, route.size), 2, replace=False)
+    if route.size > 3:
+        i, j = np.random.choice(range(1, route.size - 1), 2, replace=False)
         route.points[i], route.points[j] = route.points[j], route.points[i]
 
 
@@ -28,8 +28,8 @@ def inter_route_swap_mutation(individual, capacity):
 
     if individual.size > 1:
         r1, r2 = np.random.choice(individual.routes, 2, replace=False)
-        if r1.size > 1 and r2.size > 1:
-            i, j = choice(range(1, r1.size)), choice(range(1, r2.size))
+        if r1.size > 2 and r2.size > 2:
+            i, j = choice(range(1, r1.size - 1)), choice(range(1, r2.size - 1))
             can_be_added_r1 = can_add_point_to_route(r1.points[i], r2, capacity)
             if can_be_added_r1 and can_add_point_to_route(r2.points[j], r1, capacity):
                 r1.points[i], r2.points[j] = r2.points[j], r1.points[i]
@@ -40,8 +40,8 @@ def relocation_mutation(individual, capacity):
 
     if individual.size > 1:
         source_route = choice(individual.routes)
-        if source_route.size > 1:
-            point_index = randint(1, source_route.size - 1)
+        if source_route.size > 2:
+            point_index = randint(1, source_route.size - 2)
             point = source_route.get_point(point_index)
             target_route = choice(individual.routes)
             if can_add_point_to_route(point, target_route, capacity):
@@ -53,6 +53,6 @@ def inversion_mutation(individual, capacity=None):
     """selects a segment within a route and invert the sequence of points in that segment"""
 
     route = choice(individual.routes)
-    if route.size > 2:
-        start, end = sorted(np.random.choice(range(1, route.size), 2, replace=False))
+    if route.size > 3:
+        start, end = sorted(np.random.choice(range(1, route.size - 1), 2, replace=False))
         route.points[start:end + 1] = reversed(route.points[start:end + 1])

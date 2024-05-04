@@ -21,6 +21,7 @@ def create_random_based_feasible_route(available_points, vehicle_capacity, depot
                 not_suitable_points.append(point)
         else:
             break
+    route.append(depot)
     return Route(route), shuffled_available_points + not_suitable_points
 
 
@@ -51,6 +52,7 @@ def create_nn_dependant_feasible_route(available_points, matrix, vehicle_capacit
         current_index = next_index
         available_indices.remove(next_index)
 
+    route.append(depot)
     return Route(route), [available_points[i] for i in available_indices if i not in visited] + not_suitable_points
 
 

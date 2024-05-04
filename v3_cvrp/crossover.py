@@ -22,8 +22,8 @@ def can_fit_vehicle(extra_point, current_demand, vehicle_capacity):
 
 def crossover(parent1, parent2, matrix, capacity, depot):
     # create point pool and exclude depot points
-    pool = [point for route in parent1.routes for point in route.points[1:]] + \
-           [point for route in parent2.routes for point in route.points[1:]]
+    pool = [point for route in parent1.routes for point in route.points[1:-1]] + \
+           [point for route in parent2.routes for point in route.points[1:-1]]
 
     prob = calc_prob(pool, matrix)
 
@@ -36,6 +36,7 @@ def crossover(parent1, parent2, matrix, capacity, depot):
         can_be_added = any(can_fit_vehicle(point, current_demand, capacity) for point in available_points_set)
         if not can_be_added:
             if current_route:
+                current_route.append(depot)
                 offspring.add_route(Route(current_route))
             current_route = [depot]
             current_demand = 0
@@ -60,6 +61,7 @@ def crossover(parent1, parent2, matrix, capacity, depot):
             prob = calc_prob(pool, matrix)
 
     if current_route:
+        current_route.append(depot)
         offspring.add_route(Route(current_route))
 
     return offspring
