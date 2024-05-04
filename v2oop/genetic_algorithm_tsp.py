@@ -1,14 +1,8 @@
-import os
-
-import networkx as nx
 import numpy as np
 from random import randint, sample, choice
 from tqdm import tqdm
-
-from algorithms.graph_algorithms import get_graph, optimize_graph_nx
-from v2oop.graph import set_node_all_point_list, precompute_distances
-from v2oop.objects.route import Route
-from v2oop.preprocess import read_csv_to_point_list, reorder_save_to_csv
+from objects.route import Route
+from v2oop.preprocess import reorder_save_to_csv, get_meta_data
 from v2oop.utils import fill_nn_matrix
 
 # Генерация начальной популяции, где одна особь это рандомный маршрут
@@ -21,15 +15,6 @@ from v2oop.utils import fill_nn_matrix
 другая - с учетом коэффициента близости соседа. 
 Коэффициент следует рассчитывать на основе геодезических координат 
 '''
-
-
-def calculate_route_demand(tour):
-    if type(tour) == Route:
-        return np.sum([p.demand for p in tour.points])
-    elif type(tour) == list:
-        return np.sum([p.demand for p in tour])
-    else:
-        return 0
 
 
 def create_random_specimen(route: Route):
@@ -156,7 +141,8 @@ def reorder_to_start_point(route, point):
     route.set_points(new_route)
 
 
-def one_trip(population_size, generations, points, matrix, start_point):
+def genetic_algorithm(population_size, generations, points, matrix):
+    start_point = points[0]
     population = generate_initial_population(population_size, points=points)
 
     for _ in tqdm(range(generations), desc="Genetic Algorithm Progress"):
@@ -175,23 +161,7 @@ def one_trip(population_size, generations, points, matrix, start_point):
     # Найденный оптимальный маршрут, выбор первого из списка популяции
     [route] = select_best(population, fitness_values, num_best=1)
     reorder_to_start_point(route, start_point)
-    return [route]
-
-
-def multiple_trips(population_size, generations, points, matrix, start_point):
-    print(f'Multiple Trip')
-    return [Route(points[:len(points) // 2]), Route(points[len(points) // 2:])]
-
-
-def genetic_algorithm(population_size, generations, points, matrix, capacity):
-    start_point = points[0]
-    total_demand = calculate_route_demand(points)
-    print(f'\nTotal demand: {total_demand}')
-    if total_demand < capacity:
-        routes = one_trip(population_size, generations, points, matrix, start_point)
-    else:
-        routes = multiple_trips(population_size, generations, points, matrix, start_point)
-    return routes
+    return route
 
 
 if __name__ == "__main__":
@@ -200,32 +170,18 @@ if __name__ == "__main__":
         'graph_filename': "../public/road_network_graph.pickle",
         'input_dir': "../public/example_routes/",
         'output_dir': "../public/result_routes/",
-        'file': '10_ex_1.csv',
-        'vehicle_capacity': 1300
+        'file': '10_ex_1.csv'
     }
 
-    input_csv = os.path.join(config['input_dir'], config['file'])
-    output_csv = os.path.join(config['output_dir'], config['file'])
+    distance_matrix, city_points, input_csv, output_csv, G = get_meta_data(config, config['file'])
 
-    city_graph = get_graph(config['city_name'], config['graph_filename'])
-    graph_nx = optimize_graph_nx(city_graph)
-    G = nx.Graph(city_graph)
-
-    city_points = read_csv_to_point_list(input_csv)
-    set_node_all_point_list(city_points, city_graph)
-
-    distance_matrix = precompute_distances(graph_nx, city_points)
-
-    best_routes = genetic_algorithm(population_size=10, generations=100, points=city_points, matrix=distance_matrix,
-                                    capacity=config['vehicle_capacity'])
+    best_route = genetic_algorithm(population_size=10, generations=100, points=city_points, matrix=distance_matrix)
     print("\nОптимальный маршрут готов")
-    print("Количество последовательных обходов:", len(best_routes))
 
-    for r in best_routes:
-        r.calculate_length_G(G)
-        print("\n----------------")
-        print("\tДлина, км:\t\t\t\t\t\t", r.length)
-        print("\tПоследовательность, osmnx ids:\t", r)
+    best_route.calculate_length_G(G)
+    print("\n----------------")
+    print("\tДлина, км:\t\t\t\t\t\t", best_route.length)
+    print("\tПоследовательность, osmnx ids:\t", best_route)
 
-    # reorder_save_to_csv(input_csv, output_csv, best_routes)
-    # print("Сохранено в файл:\t\t\t\t", output_csv)
+    reorder_save_to_csv(input_csv, output_csv, best_route)
+    print("Сохранено в файл:\t\t\t\t", output_csv)
