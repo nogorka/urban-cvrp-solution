@@ -1,6 +1,8 @@
 import networkx as nx
 import numpy as np
 
+from v3_cvrp.graph import get_distance_from_matrix
+
 
 class Route:
     def __init__(self, points):
@@ -27,6 +29,14 @@ class Route:
     def calculate_length_M(self, matrix):
         distance_bw_points = [
             matrix[self.points[i].it, self.points[i + 1].it]
+            for i in range(self.size - 1)
+        ]
+        self.set_length(np.sum(distance_bw_points))
+        return self.length
+
+    def calculate_length_M_G(self, matrix, G):
+        distance_bw_points = [
+            get_distance_from_matrix(matrix, self.points[i], self.points[i + 1], G)
             for i in range(self.size - 1)
         ]
         self.set_length(np.sum(distance_bw_points))

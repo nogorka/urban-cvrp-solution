@@ -1,8 +1,12 @@
+import time
+
 from tqdm import tqdm
 
 from v2oop.genetic_algorithm_tsp import select_best
 from v2oop.preprocess import get_meta_data, convert_route_to_obj, save_json
+from v2oop.utils import fill_nn_matrix
 from v3_cvrp.crossover import crossover
+from v3_cvrp.graph import precompute_distances_nn_based
 from v3_cvrp.initial_population import generate_initial_population
 from v3_cvrp.mutation import hybrid_mutation
 
@@ -22,23 +26,23 @@ def calculate_capacity_penalty(individual, vehicle_capacity,
     return penalty * penalty_weight
 
 
-def calculate_route_compactness_bonus(individual, matrix,
+def calculate_route_compactness_bonus(individual, matrix, G,
                                       bonus_rate=0.2, bonus_weight=1, desired_threshold=250000):
     bonus = 0
     for route in individual.routes:
-        distance = route.calculate_length_M(matrix)
+        distance = route.calculate_length_M_G(matrix, G)
         if distance < desired_threshold:
             bonus += bonus_weight
     return bonus * bonus_rate
 
 
-def fitness(individual, matrix, vehicle_capacity):
+def fitness(individual, matrix, vehicle_capacity, G):
     if not individual.routes:
         return float('inf')
 
-    total_distance = individual.calculate_distance(matrix)
+    total_distance = individual.calculate_distance(matrix, G)
     capacity_penalty = calculate_capacity_penalty(individual, vehicle_capacity)
-    compactness_bonus = calculate_route_compactness_bonus(individual, matrix)
+    compactness_bonus = calculate_route_compactness_bonus(individual, matrix, G)
 
     # print(1 / total_distance, capacity_penalty, compactness_bonus)
     fitness_value = (1 / total_distance) * (capacity_penalty - compactness_bonus)
@@ -52,19 +56,19 @@ def create_offspring(parents, matrix, vehicle_capacity, depot):
     return offspring
 
 
-def genetic_algorithm(population_size, generations, points, matrix, capacity):
+def genetic_algorithm(population_size, generations, points, matrix, capacity, G, nn_matrix):
     start_point = points[0]
     population = generate_initial_population(population_size, points, capacity, start_point)
 
     for _ in tqdm(range(generations), desc="Genetic Algorithm Progress"):
         # Значения приспособленности поколения в полуляции
-        fitness_values = [fitness(route, matrix, capacity) for route in population]
+        fitness_values = [fitness(route, matrix, capacity, G) for route in population]
 
         best_routes = select_best(population, fitness_values, num_best=2)
 
         new_population = best_routes
         while len(new_population) < population_size:
-            offspring = create_offspring(best_routes, matrix, capacity, start_point)
+            offspring = create_offspring(best_routes, nn_matrix, capacity, start_point)
             new_population.append(offspring)
 
         population = new_population
@@ -80,22 +84,30 @@ if __name__ == "__main__":
         'graph_filename': "../public/road_network_graph.pickle",
         'input_dir': "../public/example_routes/",
         'output_dir': "../public/result_routes/",
-        'file': '30_ex_10.csv',
-        'vehicle_capacity': 1000,
+        'file': '30_ex_12.csv',
+        'vehicle_capacity': 500,
+        'n_targets': 30
     }
 
-    distance_matrix, city_points, input_csv, output_csv, G = get_meta_data(config, config['file'])
+    start = time.time()
+    graph_nx, city_points, input_csv, output_csv, G = get_meta_data(config, config['file'])
+
+    nn_matrix = fill_nn_matrix(city_points)
+    distance_matrix = precompute_distances_nn_based(graph_nx, city_points, nn_matrix,
+                                                    num_neighbors=int(config['n_targets'] * 0.5))
 
     best_route = genetic_algorithm(population_size=10, generations=10, points=city_points, matrix=distance_matrix,
-                                   capacity=config['vehicle_capacity'])
+                                   capacity=config['vehicle_capacity'], G=graph_nx, nn_matrix=nn_matrix)
 
     data = convert_route_to_obj(best_route, input_csv)
+    end = time.time()
     output = output_csv.replace(".csv", ".json")
     save_json(data, output)
 
     print("\nОптимальный маршрут готов")
 
     # best_route.calculate_length_G(G)
+    print(f'Time: {end - start}')
     print("\n----------------")
     print("\tДлина, км:\t\t\t\t\t\t", best_route.distance)
     print("\tПоследовательность, osmnx ids:\t", best_route)

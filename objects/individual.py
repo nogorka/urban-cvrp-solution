@@ -17,6 +17,6 @@ class Individual:
         self.routes.append(route)
         self.size = len(self.routes)
 
-    def calculate_distance(self, matrix):
-        self.distance = np.sum([route.calculate_length_M(matrix) for route in self.routes])
+    def calculate_distance(self, matrix, G):
+        self.distance = np.sum([route.calculate_length_M_G(matrix, G) for route in self.routes])
         return self.distance

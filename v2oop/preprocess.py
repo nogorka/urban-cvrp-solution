@@ -44,9 +44,9 @@ def get_meta_data(config, filename):
     city_points = read_csv_to_point_list(input_csv)
     set_node_all_point_list(city_points, city_graph)
 
-    distance_matrix = precompute_distances(graph_nx, city_points)
+    # distance_matrix = precompute_distances(graph_nx, city_points)
 
-    return distance_matrix, city_points, input_csv, output_csv, G
+    return graph_nx, city_points, input_csv, output_csv, G
 
 
 def convert_route_to_obj(individual, input_csv):

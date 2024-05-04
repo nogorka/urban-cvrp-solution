@@ -26,6 +26,20 @@ def precompute_distances_nn_based(G, points, nn_matrix, num_neighbors=5):
     return distances
 
 
+def calc_dist(matrix, p1, p2, G):
+    distance = calculate_distance(p1.node_id, p2.node_id, G)
+    matrix[p1.it, p2.it] = distance
+    matrix[p2.it, p1.it] = distance
+    return distance
+
+
+def get_distance_from_matrix(matrix, p1, p2, G):
+    distance = matrix[p1.it][p2.it]
+    if distance == 0:
+        distance = calc_dist(matrix, p1, p2, G)
+    return distance
+
+
 if __name__ == "__main__":
     config = {
         'city_name': "Saint Petersburg, Russia",
