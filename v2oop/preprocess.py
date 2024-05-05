@@ -7,7 +7,7 @@ import pandas as pd
 from algorithms.graph_algorithms import get_graph, optimize_graph_nx
 from v2oop.graph import set_node_all_point_list, precompute_distances
 from objects.point import Point
-from server.model import Point as PointModel
+from server.model import Point as PointModel, CustomEncoder
 
 
 def read_csv_to_point_list(file_path):
@@ -73,7 +73,9 @@ def convert_individual_to_obj_csv_based(individual, input_csv):
 
 def convert_individual_to_json_obj_based(individual, points):
     city_points = {point.id: point for point in points}
-    return [[city_points[p.id] for p in r.points] for r in individual.routes]
+    data = [[city_points[p.id] for p in r.points] for r in individual.routes]
+    json_string = json.dumps(data, ensure_ascii=False, cls=CustomEncoder)
+    return json_string
 
 
 def save_obj_to_json_file(data, filename):
