@@ -2,7 +2,7 @@ import numpy as np
 from random import choice, randint
 
 
-def hybrid_mutation(individual, capacity, mutation_rate=0.1):
+def hybrid_mutation(individual, capacity, mutation_rate=0.3):
     if np.random.rand() < mutation_rate:
         pool = [swap_mutation, inter_route_swap_mutation, inversion_mutation]
         mutation = choice(pool)
