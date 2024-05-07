@@ -8,6 +8,15 @@ from v3_cvrp.initial_population import generate_initial_population
 from v3_cvrp.mutation import hybrid_mutation
 
 
+def has_converged(history, threshold=1e-08, patience=5):
+    """Check if the improvement of the best fitness value
+    is less than the threshold for a number of generations"""
+    if len(history) < patience + 1:
+        return False
+    recent_improvements = [history[i] - history[i + 1] for i in range(0, patience)]
+    return all(improvement < threshold for improvement in recent_improvements)
+
+
 def create_offspring(parents, matrix, vehicle_capacity, depot):
     parent1, parent2 = parents[:2]
     offspring = crossover(parent1, parent2, matrix, vehicle_capacity, depot)
@@ -19,9 +28,15 @@ def genetic_algorithm(population_size, generations, points, matrix, capacity):
     start_point = points[0]
     population = generate_initial_population(population_size, points, capacity, start_point)
 
+    fitness_history = []
     for _ in tqdm(range(generations), desc="Genetic Algorithm Progress"):
         # Значения приспособленности поколения в полуляции
         fitness_values = [fitness(route, matrix, capacity) for route in population]
+
+        fitness_history.append(min(fitness_values))
+        if has_converged(fitness_history):
+            print("Convergence reached")
+            break
 
         best_routes = select_best(population, fitness_values, num_best=2)
 
