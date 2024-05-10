@@ -92,7 +92,6 @@ def write_compare_csv_cvrp(filename, result_lst):
         writer.writerow(['Distance (km)', 'Execution Time (s)', 'Try (№)'])
 
         for data in result_lst:
-            print(data)
             [individual, distance, time, n_try] = data
             writer.writerow([distance, time, n_try])
 

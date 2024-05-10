@@ -1,5 +1,6 @@
 import time
 import pandas as pd
+from matplotlib import pyplot as plt
 
 from v3_cvrp.genetic_algorithm_cvrp import genetic_algorithm
 from preprocessing.input_preprocess import get_all_filenames, write_compare_csv_cvrp
@@ -16,6 +17,7 @@ def get_comparing_metrics_result(config):
         dataframes.append(df)
 
     combined_dataframe = pd.concat(dataframes, ignore_index=True)
+    combined_dataframe.sort_values(by='Source_File')
     combined_dataframe.to_csv(config['result_csv'], index=False)
     print(f'Done writing {config["result_csv"]}')
 
@@ -37,23 +39,21 @@ def process_algorithm_data(input_file, output_file):
     metrics = ['Distance (km)', 'Execution Time (s)']
     df[metrics] = df[metrics].apply(pd.to_numeric, errors='coerce')
 
-    median_values = df[metrics].median()
-    std_deviation = df[metrics].std()
+    median_values = df[metrics].median().round(2)
+    std_deviation = df[metrics].std().round(2)
 
-    median_values = median_values.round(2)
-    std_deviation = std_deviation.round(2)
-
-    # median_values.to_csv(output_file)
-    results = pd.DataFrame({'Median': median_values, 'Standard Deviation': std_deviation})
+    results = pd.DataFrame({
+        'Metric': metrics,
+        'Median': median_values.values,
+        'Standard Deviation': std_deviation.values
+    })
     results.to_csv(output_file)
-
-
 
 
 def collect_batch_data(config):
     filenames = get_all_filenames(config['input_dir'])
     for file in filenames:
-    # file = '10_ex_1.csv'
+        # file = '10_ex_1.csv'
 
         compare_output_csv = config['compare_output_dir'] + file
 
@@ -80,6 +80,26 @@ def run_genetic_algorithm(city_points, distance_matrix, capacity):
     return best_route, end - start
 
 
+def draw_charts(config):
+    df = pd.read_csv(config['result_csv'])
+
+    fig, ax = plt.subplots(1, 2, figsize=(12, 6), sharex=True)
+
+    def plot(sub_plot_id, metric_name, label):
+        distance_df = df[df['Metric'] == metric_name].sort_values(by='Source_File')
+        ax[sub_plot_id].bar(distance_df['Source_File'], distance_df['Median'], yerr=distance_df['Standard Deviation'],
+                            capsize=5)
+        ax[sub_plot_id].set_title(f'Медиана {label} со стандартным отклонением')
+        ax[sub_plot_id].set_ylabel(label)
+        ax[sub_plot_id].tick_params(axis='x', rotation=90)
+
+    plot(0, 'Distance (km)', 'Расстояние (км)')
+    plot(1, 'Execution Time (s)', 'Время выполнения (сек)')
+
+    plt.tight_layout()
+    plt.show()
+
+
 def print_route_info(length, time_taken, length_diff, n_try):
     print(f"Execution time, seconds: {time_taken}")
     print(f"Length, km: {length / 1000:.1f}")
@@ -104,3 +124,4 @@ if __name__ == '__main__':
     collect_batch_data(config)
     calc_median(config)
     get_comparing_metrics_result(config)
+    draw_charts(config)
