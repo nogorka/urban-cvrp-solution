@@ -20,7 +20,7 @@ def has_converged(history, threshold=1e-08, patience=5):
 def create_offspring(parents, matrix, vehicle_capacity, depot):
     parent1, parent2 = parents[:2]
     offspring = crossover(parent1, parent2, matrix, vehicle_capacity, depot)
-    hybrid_mutation(offspring, vehicle_capacity, mutation_rate=0.1)
+    hybrid_mutation(offspring, vehicle_capacity, matrix, mutation_rate=0.1)
     return offspring
 
 
