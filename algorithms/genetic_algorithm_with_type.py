@@ -122,7 +122,7 @@ if __name__ == "__main__":
 
     city_graph = get_graph(city_name, graph_filename)
 
-    # filenames = get_all_filenames("public/example_routes")
+    # filenames = get_all_filenames("public/test_routes")
     # for file in filenames:
 
     input_csv = f'../public/example_routes/{file}'

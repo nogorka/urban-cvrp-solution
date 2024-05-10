@@ -16,7 +16,7 @@ def main():
         'city_name': "Saint Petersburg, Russia",
         'graph_filename': "../public/road_network_graph.pickle",
         'data_type': 'dict',
-        'input_csv': '../public/example_routes/',
+        'input_csv': '../public/test_routes/',
         'output_csv': '../public/result_routes/',
         'compare_output_csv': '../public/compare_result_routes/',
         'batch_size': 10

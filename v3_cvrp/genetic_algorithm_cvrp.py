@@ -56,7 +56,7 @@ if __name__ == "__main__":
     config = {
         'city_name': "Saint Petersburg, Russia",
         'graph_filename': "../public/road_network_graph.pickle",
-        'input_dir': "../public/example_routes/",
+        'input_dir': "../public/test_routes/",
         'output_dir': "../public/result_routes/",
         'file': '30_ex_10.csv',
         'vehicle_capacity': 1000,

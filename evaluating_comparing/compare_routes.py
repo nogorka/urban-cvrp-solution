@@ -38,7 +38,7 @@ def visualize_error_percentages(error_dict):
 
 if __name__ == "__main__":
     filenames = get_all_filenames("../public/result_routes")
-    optimal_routes_dir = "optimal_routes"
+    optimal_routes_dir = "optimal_routes_for_tsp_yandex_based"
     ga_routes_dir = "result_routes"
 
     error_rates = {}

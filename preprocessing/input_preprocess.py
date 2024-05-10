@@ -87,5 +87,5 @@ def write_compare_csv(filename, result_lst):
 
 
 if __name__ == "__main__":
-    d = read_csv_to_strct('../public/example_routes/10_ex_1.csv')
+    d = read_csv_to_strct('../public/test_routes/10_ex_1.csv')
     print(d['lat'])
