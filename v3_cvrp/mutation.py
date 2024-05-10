@@ -2,13 +2,16 @@ import numpy as np
 from random import choice, randint, sample
 
 
-def hybrid_mutation(individual, capacity, matrix, mutation_rate=0.3):
-    if np.random.rand() < mutation_rate:
-        pool = [swap_mutation, inter_route_swap_mutation, inversion_mutation]
-        mutation = choice(pool)
-        mutation(individual, capacity)
-        hybrid_irgibnnm_mutation(individual, matrix, capacity)
-    else:
+def hybrid_mutation(individual, capacity, matrix, mutation_rate=0.3, relocation_rate=0.6):
+    rate = np.random.rand()
+    if rate < mutation_rate:  # < 0.3
+        if np.random.rand() > mutation_rate * 2:  # > 0.6
+            pool = [swap_mutation, inter_route_swap_mutation, inversion_mutation]
+            mutation = choice(pool)
+            mutation(individual, capacity)
+        else:
+            hybrid_irgibnnm_mutation(individual, matrix, capacity)
+    elif rate < relocation_rate:  # < 0.6
         relocation_mutation(individual, capacity)
 
 
@@ -84,8 +87,8 @@ def rgibnnm_mutation(route, nn_matrix, param=3):
 
         distances = nn_matrix[random_gene_it]
         sorted_neighbors = sorted(((i, distances[i]) for i in range(len(distances) - 1)
-                                 if i in route_its and i != random_gene_it),
-                                key=lambda x: x[1])
+                                   if i in route_its and i != random_gene_it),
+                                  key=lambda x: x[1])
 
         if len(sorted_neighbors) > 3:
             nearest_neighbor_it, _ = sorted_neighbors[0]
