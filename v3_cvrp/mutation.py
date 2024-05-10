@@ -2,7 +2,12 @@ import numpy as np
 from random import choice, randint, sample
 
 
-def hybrid_mutation(individual, capacity, matrix, mutation_rate=0.3, relocation_rate=0.6):
+def hybrid_mutation(individual, capacity, matrix, tuning=None):
+    if tuning is None:
+        tuning = {}
+    mutation_rate = tuning.get('mutation_rate', 0.3)
+    relocation_rate = tuning.get('relocation_rate', 0.6)
+
     rate = np.random.rand()
     if rate < mutation_rate:  # < 0.3
         if np.random.rand() > mutation_rate * 2:  # > 0.6
