@@ -83,21 +83,19 @@ def rgibnnm_mutation(route, nn_matrix, param=3):
         random_gene_idx = route_its.index(random_gene_it)
 
         distances = nn_matrix[random_gene_it]
-        cur_route_dist = sorted(((i, distances[i]) for i in range(len(distances) - 1) if i in route_its),
-                                    key=lambda x: x[1])
+        sorted_neighbors = sorted(((i, distances[i]) for i in range(len(distances) - 1)
+                                 if i in route_its and i != random_gene_it),
+                                key=lambda x: x[1])
 
-        if len(cur_route_dist) > 3:
-            filtered_nn = [cur_route_dist[i] if cur_route_dist[i][0] != random_gene_it else float('inf')
-                           for i in range(len(cur_route_dist))]
-
-            nearest_neighbor = filtered_nn[1]  # filtered_nn[0] = inf, item structure: (it, distance)
-            nearest_neighbor_idx = route_its.index(nearest_neighbor[0])
+        if len(sorted_neighbors) > 3:
+            nearest_neighbor_it, _ = sorted_neighbors[0]
+            nearest_neighbor_idx = route_its.index(nearest_neighbor_it)
 
             # Select a random neighbor of the nearest neighbor within a range (using modulo for wraparound)
             neighbors_route_range = range(max(0, nearest_neighbor_idx - param),
-                                    min(len(route_its), nearest_neighbor_idx + param + 1))
-            swap_with_it = choice([route_its[n_it] for n_it in neighbors_route_range if n_it != random_gene_it])
-
-            # Perform the swap mutation
-            swap_with_idx = route_its.index(swap_with_it)
-            swap(route, i=random_gene_idx, j=swap_with_idx)
+                                          min(len(route_its), nearest_neighbor_idx + param + 1))
+            swap_candidates = [route_its[n] for n in neighbors_route_range if route_its[n] != random_gene_it]
+            if swap_candidates:
+                swap_with_it = choice(swap_candidates)
+                swap_with_idx = route_its.index(swap_with_it)
+                swap(route, i=random_gene_idx, j=swap_with_idx)
