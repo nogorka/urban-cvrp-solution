@@ -20,3 +20,7 @@ class Individual:
     def calculate_distance(self, matrix):
         self.distance = np.sum([route.calculate_length_M(matrix) for route in self.routes])
         return self.distance
+
+    def calculate_distance_G(self, G):
+        self.distance = np.sum([route.calculate_length_G(G) for route in self.routes])
+        return self.distance

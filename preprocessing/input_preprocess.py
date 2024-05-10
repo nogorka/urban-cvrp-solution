@@ -86,6 +86,19 @@ def write_compare_csv(filename, result_lst):
     print(f"\nData successfully written to {filename}")
 
 
+def write_compare_csv_cvrp(filename, result_lst):
+    with open(filename, mode='w', newline='') as file:
+        writer = csv.writer(file)
+        writer.writerow(['Distance (km)', 'Execution Time (s)', 'Try (№)'])
+
+        for data in result_lst:
+            print(data)
+            [individual, distance, time, n_try] = data
+            writer.writerow([distance, time, n_try])
+
+    print(f"\nData successfully written to {filename}")
+
+
 if __name__ == "__main__":
     d = read_csv_to_strct('../public/test_routes/10_ex_1.csv')
     print(d['lat'])
