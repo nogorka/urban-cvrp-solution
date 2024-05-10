@@ -2,8 +2,12 @@ log.md
 __pycache__
 .vscode
 cache
+
 public/road_network_graph.pickle
 public/locations_data_preview.html
+public/metrics_result
+public/compare_result_routes
+
 .idea
 qodana.yaml
 
