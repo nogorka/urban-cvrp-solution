@@ -1,4 +1,5 @@
 import optuna
+import pandas as pd
 
 from preprocessing.input_preprocess import get_all_filenames
 from v2oop.preprocess import get_meta_data
@@ -11,7 +12,7 @@ config = {
     'graph_filename': "../public/road_network_graph.pickle",
     'input_dir': "../public/test_routes/",
     'output_dir': "../public/result_routes/",
-    'output_csv': 'public/output_ordered_points.csv',
+    'output_results': '../public/results_optuna.csv',
     'study': '../public/optuna_results/',
     'file': '30_ex_10.csv',
     'vehicle_capacity': 1000,
@@ -51,10 +52,6 @@ def draw(study):
     fig_importance = plot_param_importances(study)
     fig_importance.update_layout(title="Parameter Importances", xaxis_title="Parameter", yaxis_title="Importance")
 
-    # Получение лучших гиперпараметров
-    best_params = study.best_params
-    print("Лучшие гиперпараметры:", best_params)
-
     # best_params_str = ', '.join([f"{key}: {value}" for key, value in best_params.items()])
     # fig_history.add_annotation(x=study.best_trial.number, y=study.best_value, text=f"Best Params: {best_params_str}",
     #                            showarrow=True, arrowhead=4, ax=-30, ay=-40)
@@ -69,16 +66,24 @@ def save_study_to_json(study, file_path):
 
 
 if __name__ == "__main__":
+    results = []
     filenames = get_all_filenames(config['input_dir'])
-    # for file in filenames:
+    for file in filenames:
 
-    file = config['file']
-    distance_matrix, city_points, input_csv, output_csv, G = get_meta_data(config, file)
+        # file = config['file']
+        distance_matrix, city_points, input_csv, output_csv, G = get_meta_data(config, file)
 
-    study = optuna.create_study(direction='minimize')
-    study.optimize(objective, n_trials=2)
+        study = optuna.create_study(direction='minimize')
+        study.optimize(objective, n_trials=30)
 
-    output_path = config['study'] + file.replace(".csv", ".json")
-    save_study_to_json(study, output_path)
+        print("Лучшие гиперпараметры:", study.best_params)
+        data = study.best_params.copy()
+        data['source_filename'] = file
+        results.append(data)
 
-    draw(study)
+        output_path = config['study'] + file.replace(".csv", ".json")
+        save_study_to_json(study, output_path)
+
+    df = pd.DataFrame(results)
+    df.to_csv(config['output_results'])
+    # draw(study)
