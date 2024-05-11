@@ -5,7 +5,9 @@ from matplotlib import pyplot as plt
 
 from preprocessing.input_preprocess import get_all_filenames
 
+plt.rcParams.update({'font.size': 16})
 
+best = []
 def read_from_json(file_path):
     with open(file_path, 'r') as file:
         data_json = json.load(file)
@@ -53,6 +55,8 @@ def draw_importance(filename):
 
 def calculate_importance(df):
     best_trials = df[df['value'] <= df['value'].quantile(0.1)]
+
+    best.append(best_trials)
     param_columns = [col for col in df.columns if 'params_' in col]
     return best_trials[param_columns].var()
 
@@ -72,17 +76,17 @@ def aggregate_importances(files):
 
 def plot_importance_with_std(median_importance, std_importance):
     # Sort values for better visualization
-    print(median_importance)
+    # print(median_importance)
     indices = median_importance.sort_values(ascending=True).index
     sorted_medians = median_importance.loc[indices]
     sorted_stds = std_importance.loc[indices]
 
-    print(indices)
+    # print(indices)
     clean_indices = [index.replace('params_', '') for index in indices]
     error_bars = (0 * sorted_stds, sorted_stds)  # (lower errors, upper errors)
 
     plt.figure(figsize=(12, 7))
-    plt.barh(clean_indices, sorted_medians, xerr=error_bars, capsize=5)
+    plt.barh(clean_indices, sorted_medians, xerr=error_bars, capsize=7)
     plt.xlabel('Median Importance')
     plt.ylabel('Parameters')
     plt.title('Median Parameter Importances Across Studies with STD')
@@ -100,4 +104,12 @@ if __name__ == '__main__':
 
     files = [dir + file for file in get_all_filenames(dir)]
     median, std, _ = aggregate_importances(files)
+    # print(median, std)
+    print(best)
+    common_df = pd.concat(best, ignore_index=True)
+    common_df.drop('state', axis=1, inplace=True)
+    print(common_df)
+    med = common_df.median()
+    med.to_csv('median.csv')
+    common_df.to_csv('best.csv')
     plot_importance_with_std(median, std)

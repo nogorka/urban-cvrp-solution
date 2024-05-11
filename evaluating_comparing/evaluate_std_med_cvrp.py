@@ -25,7 +25,6 @@ def get_comparing_metrics_result(config):
 def calc_median(config):
     filenames = get_all_filenames(config['compare_output_dir'])
     for file in filenames:
-
         input_csv = config['compare_output_dir'] + file
         output_csv = config['metrics_dir'] + file
 
@@ -51,7 +50,12 @@ def process_algorithm_data(input_file, output_file):
 
 
 def collect_batch_data(config):
-    filenames = get_all_filenames(config['input_dir'])
+    filenames = sorted(get_all_filenames(config['input_dir']))
+    res_filenames = sorted(get_all_filenames(config['compare_output_dir']))
+    res_filenames = [file.replace(".json", ".csv") for file in res_filenames]
+    filenames = set(filenames).difference(set(res_filenames))
+    print(filenames)
+
     for file in filenames:
         # file = '10_ex_1.csv'
 
@@ -72,10 +76,24 @@ def collect_batch_data(config):
 
 
 def run_genetic_algorithm(city_points, distance_matrix, capacity):
+    settings = {
+        'population_size': 10,
+        'generations': 10,
+        'converge_threshold': 1e-08,
+        'converge_patience': 5,
+        'over_penalty_rate': 0.6,
+        'under_penalty_rate': 0.3,
+        'penalty_weight': 5,
+        'bonus_rate': 1.8,
+        'bonus_weight': 0.15,
+        'desired_threshold': 2.7e05,
+        'mutation_rate': 0.4,
+        'relocation_rate': 0.7
+    }
+
     start = time.time()
 
-    best_route = genetic_algorithm(population_size=10, generations=10, points=city_points, matrix=distance_matrix,
-                                   capacity=capacity)
+    best_route = genetic_algorithm(points=city_points, matrix=distance_matrix, capacity=capacity, tuning=settings)
     end = time.time()
     return best_route, end - start
 

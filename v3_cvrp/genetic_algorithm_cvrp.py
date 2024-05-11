@@ -78,14 +78,14 @@ if __name__ == "__main__":
         'generations': 10,
         'converge_threshold': 1e-08,
         'converge_patience': 5,
-        'over_penalty_rate': 0.8,
-        'under_penalty_rate': 0.5,
-        'penalty_weight': 3,
-        'bonus_rate': 1,
-        'bonus_weight': 0.2,
+        'over_penalty_rate': 0.6,
+        'under_penalty_rate': 0.3,
+        'penalty_weight': 5,
+        'bonus_rate': 1.8,
+        'bonus_weight': 0.15,
         'desired_threshold': 2.7e05,
-        'mutation_rate': 0.3,
-        'relocation_rate': 0.6
+        'mutation_rate': 0.4,
+        'relocation_rate': 0.7
     }
 
     distance_matrix, city_points, input_csv, output_csv, G = get_meta_data(config, config['file'])
