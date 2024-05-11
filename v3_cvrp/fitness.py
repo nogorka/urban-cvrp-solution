@@ -42,5 +42,5 @@ def fitness(individual, matrix, vehicle_capacity, tuning):
     compactness_bonus = calculate_route_compactness_bonus(individual, matrix, tuning)
 
     # print(1 / total_distance, capacity_penalty, compactness_bonus)
-    fitness_value = (1 / total_distance) * (capacity_penalty - compactness_bonus)
+    fitness_value = (1 / total_distance) * abs(capacity_penalty - compactness_bonus)
     return fitness_value

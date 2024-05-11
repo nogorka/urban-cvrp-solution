@@ -13,7 +13,7 @@ config = {
     'input_dir': "../public/test_routes/",
     'output_dir': "../public/result_routes/",
     'output_results': '../public/results_optuna.csv',
-    'study': '../public/optuna_results/',
+    'study': '../public/optuna_results_weights/',
     'file': '30_ex_10.csv',
     'vehicle_capacity': 1000,
 }
@@ -21,8 +21,8 @@ config = {
 
 def objective(trial):
     settings = {
-        'population_size': trial.suggest_int('population_size', 5, 50),
-        'generations': trial.suggest_int('generations', 5, 50),
+        'population_size': 10,
+        'generations': 10,
         'converge_threshold': 1e-08,
         'converge_patience': 5,
         'over_penalty_rate': trial.suggest_float('over_penalty_rate', 0.4, 1),
@@ -67,14 +67,20 @@ def save_study_to_json(study, file_path):
 
 if __name__ == "__main__":
     results = []
-    filenames = get_all_filenames(config['input_dir'])
-    for file in filenames:
+    filenames = sorted(get_all_filenames(config['input_dir']))
+    res_filenames = sorted(get_all_filenames(config['study']))
+    res_filenames = [file.replace(".json", ".csv") for file in res_filenames]
+    filenames = set(filenames).difference(set(res_filenames))
+    print(filenames)
 
+    for file in filenames:
+        print(file)
         # file = config['file']
+
         distance_matrix, city_points, input_csv, output_csv, G = get_meta_data(config, file)
 
         study = optuna.create_study(direction='minimize')
-        study.optimize(objective, n_trials=30)
+        study.optimize(objective, n_trials=20)
 
         print("Лучшие гиперпараметры:", study.best_params)
         data = study.best_params.copy()
@@ -86,4 +92,5 @@ if __name__ == "__main__":
 
     df = pd.DataFrame(results)
     df.to_csv(config['output_results'])
+
     # draw(study)
