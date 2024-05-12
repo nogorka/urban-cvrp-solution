@@ -47,7 +47,5 @@ jobs:
           cd parcel-lockers
           source venv/bin/activate
           git pull
-          if lsof -i:8000; then
-            fuser -k 8000/tcp
-          fi
+          fuser -k 8000/tcp
           uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload 2>&1
