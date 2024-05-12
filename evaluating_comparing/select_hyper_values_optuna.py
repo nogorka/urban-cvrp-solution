@@ -8,7 +8,7 @@ def objective(trial):
     generations = trial.suggest_int('generations', 5, 2000)
     mutation_rate = trial.suggest_float('mutation_rate', 0.05, 0.5)
 
-    input_csv = 'public/example_routes/30_ex_9.csv'
+    input_csv = 'public/test_routes/30_ex_9.csv'
     points = read_csv_to_dict(input_csv)
 
     best_route = genetic_algorithm(population_size=population_size,

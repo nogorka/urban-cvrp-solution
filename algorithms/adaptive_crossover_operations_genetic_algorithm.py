@@ -178,7 +178,7 @@ if __name__ == "__main__":
         'city_name': "Saint Petersburg, Russia",
         'graph_filename': "../public/road_network_graph.pickle",
         'data_type': 'dict',
-        'input_csv': '../public/example_routes/10_ex_1.csv',
+        'input_csv': '../public/test_routes/10_ex_1.csv',
         'output_csv': '../public/result_routes/10_ex_1.csv',
     }
 

@@ -1,49 +1,33 @@
-Algorithm,Distance (km),Execution Time (s),Length Difference (km),Resemble Rate (%),Source_File
-Genetic Algorithm,282430.0,0.0565,216.6,0.9166666666666666,30_ex_9.csv
-Genetic Algorithm Adaptive Crossover,330203.5,0.118,168.85000000000002,0.0666666666666666,30_ex_9.csv
-Irgibnnm Genetic Algorithm,300332.5,0.0675,198.7,0.0999999999999999,30_ex_9.csv
-Simulated Annealing,501851.0,0.0195,-2.8,0.95,30_ex_9.csv
-Genetic Algorithm,285829.5,0.0579999999999999,166.8,0.0833333333333332,30_ex_11.csv
-Genetic Algorithm Adaptive Crossover,277760.5,0.116,174.85,0.9166666666666666,30_ex_11.csv
-Irgibnnm Genetic Algorithm,274467.5,0.0685,178.14999999999998,0.4999999999999999,30_ex_11.csv
-Simulated Annealing,448902.0,0.0195,3.7,0.9833333333333334,30_ex_11.csv
-Genetic Algorithm,168988.0,0.043,62.25,0.9333333333333332,15_ex_7.csv
-Genetic Algorithm Adaptive Crossover,149942.0,0.111,81.3,0.7666666666666666,15_ex_7.csv
-Irgibnnm Genetic Algorithm,157780.5,0.0545,73.5,0.4666666666666667,15_ex_7.csv
-Simulated Annealing,217225.5,0.0115,14.0,0.6666666666666666,15_ex_7.csv
-Genetic Algorithm,319806.5,0.0565,160.05,0.9666666666666666,30_ex_12.csv
-Genetic Algorithm Adaptive Crossover,301228.5,0.111,178.6,0.0666666666666666,30_ex_12.csv
-Irgibnnm Genetic Algorithm,286330.0,0.066,193.55,0.5166666666666666,30_ex_12.csv
-Simulated Annealing,457792.0,0.0195,22.05,0.9666666666666666,30_ex_12.csv
-Genetic Algorithm,141310.0,0.0505,107.95,0.5666666666666665,15_ex_8.csv
-Genetic Algorithm Adaptive Crossover,136206.5,0.1215,113.0,0.6,15_ex_8.csv
-Irgibnnm Genetic Algorithm,118354.5,0.0535,130.89999999999998,0.5,15_ex_8.csv
-Simulated Annealing,240879.5,0.0115,8.35,0.5666666666666667,15_ex_8.csv
-Genetic Algorithm,121477.5,0.043,76.5,0.1666666666666666,15_ex_6.csv
-Genetic Algorithm Adaptive Crossover,109753.5,0.106,88.2,0.8333333333333333,15_ex_6.csv
-Irgibnnm Genetic Algorithm,120436.5,0.0535,77.55000000000001,0.8666666666666667,15_ex_6.csv
-Simulated Annealing,189568.0,0.012,8.4,0.5333333333333333,15_ex_6.csv
-Genetic Algorithm,171354.0,0.042,76.8,0.8666666666666667,15_ex_5.csv
-Genetic Algorithm Adaptive Crossover,174781.5,0.1065,73.35,0.4999999999999999,15_ex_5.csv
-Irgibnnm Genetic Algorithm,151884.5,0.053,96.3,0.1666666666666666,15_ex_5.csv
-Simulated Annealing,232272.0,0.0115,15.85,0.9,15_ex_5.csv
-Genetic Algorithm,103380.5,0.038,-16.6,0.6,10_ex_4.csv
-Genetic Algorithm Adaptive Crossover,104355.0,0.107,-17.6,0.35,10_ex_4.csv
-Irgibnnm Genetic Algorithm,83663.0,0.049,3.1,0.4,10_ex_4.csv
-Simulated Annealing,108211.5,0.009,-21.45,0.6,10_ex_4.csv
-Genetic Algorithm,315094.5,0.057,193.45,0.5,30_ex_10.csv
-Genetic Algorithm Adaptive Crossover,316886.5,0.1145,191.65,0.4833333333333333,30_ex_10.csv
-Irgibnnm Genetic Algorithm,300100.5,0.066,208.45,0.9666666666666666,30_ex_10.csv
-Simulated Annealing,497702.0,0.019,10.85,1.0,30_ex_10.csv
-Genetic Algorithm,70437.5,0.0375,49.900000000000006,0.55,10_ex_1.csv
-Genetic Algorithm Adaptive Crossover,68961.5,0.1045,51.35,0.5,10_ex_1.csv
-Irgibnnm Genetic Algorithm,76557.5,0.049,43.75,0.6,10_ex_1.csv
-Simulated Annealing,118864.5,0.009,1.45,0.95,10_ex_1.csv
-Genetic Algorithm,142956.0,0.038,56.5,0.4999999999999999,10_ex_3.csv
-Genetic Algorithm Adaptive Crossover,141634.5,0.1035,57.85,0.5499999999999999,10_ex_3.csv
-Irgibnnm Genetic Algorithm,141049.5,0.049,58.4,0.8,10_ex_3.csv
-Simulated Annealing,205040.5,0.009,-5.55,0.6,10_ex_3.csv
-Genetic Algorithm,90932.5,0.0375,49.25,0.2499999999999999,10_ex_2.csv
-Genetic Algorithm Adaptive Crossover,90241.5,0.105,49.9,0.4499999999999999,10_ex_2.csv
-Irgibnnm Genetic Algorithm,100970.0,0.049,39.2,0.8,10_ex_2.csv
-Simulated Annealing,151078.0,0.009,-10.9,0.9,10_ex_2.csv
+Unnamed: 0,Metric,Median,Standard Deviation,Source_File
+0,Distance (km),1928.0,157.96,30_ex_9.csv
+1,Execution Time (s),0.31,1.42,30_ex_9.csv
+0,Distance (km),1949.0,165.37,30_ex_11.csv
+1,Execution Time (s),0.3,0.29,30_ex_11.csv
+0,Distance (km),799.0,78.91,15_ex_7.csv
+1,Execution Time (s),0.08,0.2,15_ex_7.csv
+0,Distance (km),2792.0,53.68,50_ex_16.csv
+1,Execution Time (s),1.05,1.45,50_ex_16.csv
+0,Distance (km),2467.0,66.59,50_ex_15.csv
+1,Execution Time (s),0.97,0.07,50_ex_15.csv
+0,Distance (km),1725.0,189.36,30_ex_12.csv
+1,Execution Time (s),0.33,1.23,30_ex_12.csv
+0,Distance (km),747.0,106.16,15_ex_8.csv
+1,Execution Time (s),0.1,1.29,15_ex_8.csv
+0,Distance (km),2893.0,153.98,50_ex_14.csv
+1,Execution Time (s),0.9,1.8,50_ex_14.csv
+0,Distance (km),823.0,40.58,15_ex_6.csv
+1,Execution Time (s),0.37,0.65,15_ex_6.csv
+0,Distance (km),886.0,43.79,15_ex_5.csv
+1,Execution Time (s),0.12,0.12,15_ex_5.csv
+0,Distance (km),593.0,53.81,10_ex_4.csv
+1,Execution Time (s),0.06,0.23,10_ex_4.csv
+0,Distance (km),1553.0,154.58,30_ex_10.csv
+1,Execution Time (s),0.38,2.02,30_ex_10.csv
+0,Distance (km),514.0,43.76,10_ex_1.csv
+1,Execution Time (s),0.06,0.12,10_ex_1.csv
+0,Distance (km),648.0,59.2,10_ex_3.csv
+1,Execution Time (s),0.05,0.0,10_ex_3.csv
+0,Distance (km),453.0,25.35,10_ex_2.csv
+1,Execution Time (s),0.12,0.48,10_ex_2.csv
+0,Distance (km),2428.0,103.26,50_ex_13.csv
+1,Execution Time (s),0.9,1.0,50_ex_13.csv
