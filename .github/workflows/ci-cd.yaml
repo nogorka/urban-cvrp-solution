@@ -42,6 +42,6 @@ jobs:
         username: ${{ secrets.USERNAME }}
         password: ${{ secrets.PASSWORD }}
         script: |
-          cd parcel-lockers/server
+          cd parcel-lockers/app
           git pull
           uvicorn main:app --host 0.0.0.0 --port 8000 --reload
