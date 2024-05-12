@@ -2,7 +2,7 @@ import datetime
 
 from bson import ObjectId
 
-from server.mongo import get_routes_collection
+from app.mongo import get_routes_collection
 
 
 def save_route(json_data):

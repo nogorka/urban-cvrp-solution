@@ -2,9 +2,9 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
 
-from server.dal import save_route, get_route
-from server.ga import ga
-from server.model import Point
+from app.dal import save_route, get_route
+from app.ga import ga
+from app.model import Point
 
 app = FastAPI()
 
