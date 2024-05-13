@@ -7,6 +7,7 @@ import pandas as pd
 from algorithms.graph_algorithms import get_graph, optimize_graph_nx
 from v2oop.graph import set_node_all_point_list, precompute_distances
 from objects.point import Point
+from app.model import Point as PointModel, CustomEncoder
 
 
 def read_csv_to_point_list(file_path):
@@ -33,6 +34,21 @@ def reorder_save_to_csv(input, output, route):
     df_reordered.to_csv(output, index=False)
 
 
+def convert_req_points_to_ga_points(points: PointModel):
+    lst = []
+
+    for p in points:
+        d = p.total_volume - p.free_volume
+        point = Point(id=p.id, lat=p.lat, long=p.long, demand=d)
+        lst.append(point)
+    return lst
+
+
+def reorder_csv_points_json(points, route):
+    id_to_index = {point.id: (index, point) for index, point in enumerate(route)}
+    return sorted(points, key=lambda x: id_to_index.get(x.id, float('inf')))
+
+
 def get_meta_data(config, filename):
     input_csv = os.path.join(config['input_dir'], filename)
     output_csv = os.path.join(config['output_dir'], filename)
@@ -49,12 +65,19 @@ def get_meta_data(config, filename):
     return distance_matrix, city_points, input_csv, output_csv, G
 
 
-def convert_route_to_obj(individual, input_csv):
+def convert_individual_to_obj_csv_based(individual, input_csv):
     with open(input_csv, newline='', encoding='utf-8') as csvfile:
         city_points = {row['id']: row for row in csv.DictReader(csvfile)}
     return [[city_points[p.id] for p in r.points] for r in individual.routes]
 
 
-def save_json(data, filename):
+def convert_individual_to_json_obj_based(individual, points):
+    city_points = {point.id: point for point in points}
+    data = [[city_points[p.id] for p in r.points] for r in individual.routes]
+    json_string = json.dumps(data, ensure_ascii=False, cls=CustomEncoder)
+    return json_string
+
+
+def save_obj_to_json_file(data, filename):
     with open(filename, 'w', encoding='utf-8') as outfile:
         json.dump(data, outfile, ensure_ascii=False, indent=4)

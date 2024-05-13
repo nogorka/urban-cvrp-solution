@@ -7,8 +7,12 @@ public/road_network_graph.pickle
 public/locations_data_preview.html
 public/metrics_result
 public/compare_result_routes
+public/optuna_results
+public/optuna_results_weights
 
 .idea
 qodana.yaml
 
 .env
+
+venv
