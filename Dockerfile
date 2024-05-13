@@ -5,7 +5,7 @@ LABEL authors="nogorka"
 
 FROM python:3.10
 
-WORKDIR /
+WORKDIR /app
 
 COPY requirements.txt /app/
 
