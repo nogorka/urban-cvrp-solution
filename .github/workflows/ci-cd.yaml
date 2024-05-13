@@ -26,7 +26,8 @@ jobs:
             --file Dockerfile \
             --tag nogorka42/parcel-lockers:latest \
             --build-arg MONGODB_URI=${{ secrets.MONGODB_URI }} \
-            --push .
+            --push \
+            .
 
     env:
       MONGODB_URI: ${{ secrets.MONGODB_URI }}
