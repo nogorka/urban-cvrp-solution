@@ -22,12 +22,8 @@ jobs:
       - name: Build and push Docker image
         run: |
           docker buildx create --use
-          docker buildx build \
-            --file Dockerfile \
-            --tag nogorka42/parcel-lockers:latest \
-            --build-arg MONGODB_URI=${{ secrets.MONGODB_URI }} \
-            --push \
-            .
+          docker buildx build --push --file Dockerfile --tag nogorka42/parcel-lockers:latest --build-arg MONGODB_URI=${{ secrets.MONGODB_URI }} .
+          
 
     env:
       DOCKER_CLI_EXPERIMENTAL: enabled
