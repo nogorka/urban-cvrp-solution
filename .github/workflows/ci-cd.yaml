@@ -20,12 +20,12 @@ jobs:
         run: echo ${{ secrets.DOCKERHUB_ACCESS_TOKEN }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
 
       - name: Build and push Docker image
-        run: |
+        run: |  
           docker buildx create --use
           docker buildx build \
-          -f Dockerfile \
-          -t nogorka42/parcel-lockers:latest \      
-          --push .
+            --file Dockerfile \
+            --tag nogorka42/parcel-lockers:latest \
+            --push .
 
     env:
       DOCKER_CLI_EXPERIMENTAL: enabled
