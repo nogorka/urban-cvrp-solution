@@ -31,3 +31,26 @@ jobs:
       DOCKER_CLI_EXPERIMENTAL: enabled
       DOCKER_BUILDKIT: 1
 
+
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Deploy to Server
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USER }}
+          password: ${{ secrets.PASSWORD }}
+          script: |
+            docker login --username ${{ secrets.DOCKERHUB_USERNAME }} --password ${{secrets.DOCKERHUB_ACCESS_TOKEN}}
+          
+            docker pull nogorka42/parcel-lockers
+            
+            docker stop parcel-lockers || true
+            docker rm parcel-lockers || true
+            
+            docker run --name parcel-lockers -d -p 80:80 nogorka42/parcel-lockers
+
