@@ -15,7 +15,7 @@ COPY . /app/
 
 EXPOSE 80
 
-ENV MONGODB_URI=MONGODB_URI
+ENV MONGODB_URI=${MONGODB_URI}
 
 
 CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "80"]

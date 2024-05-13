@@ -25,6 +25,7 @@ jobs:
           docker buildx build \
             --file Dockerfile \
             --tag nogorka42/parcel-lockers:latest \
+            --build-arg MONGODB_URI=${{ secrets.MONGODB_URI }} \
             --push .
 
     env:
