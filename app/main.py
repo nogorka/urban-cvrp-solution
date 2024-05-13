@@ -10,7 +10,7 @@ app = FastAPI()
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173"],
+    allow_origins=["http://localhost:5173", "https://nogorka-cvrp.netlify.app/"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -22,6 +22,21 @@ config = {
     'vehicle_capacity': 1000,
 }
 
+settings = {
+    'population_size': 10,
+    'generations': 10,
+    'converge_threshold': 1e-08,
+    'converge_patience': 5,
+    'over_penalty_rate': 0.6,
+    'under_penalty_rate': 0.3,
+    'penalty_weight': 5,
+    'bonus_rate': 1.8,
+    'bonus_weight': 0.15,
+    'desired_threshold': 2.7e05,
+    'mutation_rate': 0.4,
+    'relocation_rate': 0.7
+}
+
 
 @app.get("/")
 async def root():
@@ -30,7 +45,7 @@ async def root():
 
 @app.post("/optimize")
 async def optimize_route(points: list[Point]):
-    route = ga(points, config)
+    route = ga(points, config, settings)
     optimal_route = save_route(route)
     return optimal_route
 
