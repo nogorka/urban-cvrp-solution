@@ -56,5 +56,5 @@ jobs:
             docker stop parcel-lockers || true
             docker rm parcel-lockers || true
             
-            docker run --name parcel-lockers -d -p 3000:80 -e MONGODB_URI=${{ secrets.MONGODB_URI }} nogorka42/parcel-lockers
+            docker run --name parcel-lockers -d -p 3000:80 -e MONGODB_URI="${{ secrets.MONGODB_URI }}" nogorka42/parcel-lockers
 
