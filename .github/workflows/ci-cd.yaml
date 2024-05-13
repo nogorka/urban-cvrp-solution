@@ -45,6 +45,8 @@ jobs:
           username: ${{ secrets.USER }}
           password: ${{ secrets.PASSWORD }}
           script: |
+            echo "SSH login successful"
+
             docker login --username ${{ secrets.DOCKERHUB_USERNAME }} --password ${{secrets.DOCKERHUB_ACCESS_TOKEN}}
           
             docker pull nogorka42/parcel-lockers
