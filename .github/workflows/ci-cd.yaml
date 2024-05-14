@@ -50,8 +50,8 @@ jobs:
             docker rm parcel-lockers || true
             
             docker run --name parcel-lockers -d -p 3000:80 \
-              -v /root/selfsigned.crt:/app/selfsigned.crt \
-              -v /root/selfsigned.key:/app/selfsigned.key \
+              -v /etc/letsencrypt/live/nogorka42.ru/fullchain.pem:/app/fullchain.pem \
+              -v /etc/letsencrypt/live/nogorka42.ru/privkey.pem:/app/privkey.pem \
               -e MONGODB_URI="${{ secrets.MONGODB_URI }}" \
               nogorka42/parcel-lockers
     env:
