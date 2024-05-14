@@ -21,14 +21,8 @@ jobs:
 
       - name: Build and push Docker image
         run: |
-          docker buildx create --use
-          docker buildx build \
-          --file Dockerfile \
-          --tag nogorka42/parcel-lockers:latest \
-          --build-arg MONGODB_URI="${{ secrets.MONGODB_URI }}" \
-          --push \
-          .
-   
+          docker build -t nogorka42/parcel-lockers .
+          docker push nogorka42/parcel-lockers
 
     env:
       DOCKER_CLI_EXPERIMENTAL: enabled
@@ -48,13 +42,17 @@ jobs:
           password: ${{ secrets.PASSWORD }}
           script: |
             echo "SSH login successful"
-
-            docker login --username ${{ secrets.DOCKERHUB_USERNAME }} --password ${{secrets.DOCKERHUB_ACCESS_TOKEN}}
-          
+            
+            docker login --username ${{ secrets.DOCKERHUB_USERNAME }} --password ${{ secrets.DOCKERHUB_ACCESS_TOKEN }}
             docker pull nogorka42/parcel-lockers
             
             docker stop parcel-lockers || true
             docker rm parcel-lockers || true
             
-            docker run --name parcel-lockers -d -p 3000:80 -e MONGODB_URI="${{ secrets.MONGODB_URI }}" nogorka42/parcel-lockers
-
+            docker run --name parcel-lockers -d -p 3000:80 \
+              -v /root/selfsigned.crt:/app/selfsigned.crt \
+              -v /root/selfsigned.key:/app/selfsigned.key \
+              -e MONGODB_URI="${{ secrets.MONGODB_URI }}" \
+              nogorka42/parcel-lockers
+    env:
+      MONGODB_URI: ${{ secrets.MONGODB_URI }}

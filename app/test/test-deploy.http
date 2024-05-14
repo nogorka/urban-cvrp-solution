@@ -1,9 +1,9 @@
-GET http://176.123.168.71:3000/route?id=663662ca9494b67cea8c85de
+GET https://176.123.168.71:3000/route?id=663662ca9494b67cea8c85de
 Accept: application/json
 
 ###
 
-POST http://176.123.168.71:3000/optimize
+POST https://176.123.168.71:3000/optimize
 Content-Type: application/json
 
 [{"id":10844090706,"lat":60.023117,"long":30.326293,"type":"outpost","adress":"112 к1, проспект Тореза, Поклонная гора, округ Светлановское, Санкт-Петербург, Северо-Западный федеральный округ, 194017, Россия","total_volume":376,"free_volume":211,"purpose":"Ozon"},
@@ -19,7 +19,7 @@ Content-Type: application/json
 
 ###
 
-GET http://176.123.168.71:3000/
+GET https://176.123.168.71:3000/
 Accept: application/json
 
 ###
