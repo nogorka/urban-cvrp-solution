@@ -4,7 +4,7 @@ import uvicorn
 
 from app.dal import save_route, get_route
 from app.ga import ga
-from app.model import Point
+from app.model import RequestOptimizer
 
 app = FastAPI()
 
@@ -44,8 +44,9 @@ async def root():
 
 
 @app.post("/optimize")
-async def optimize_route(points: list[Point]):
-    route = ga(points, config, settings)
+async def optimize_route(request: RequestOptimizer):
+    config['vehicle_capacity'] = request.capacity
+    route = ga(request.points, config, settings)
     optimal_route = save_route(route)
     return optimal_route
 
