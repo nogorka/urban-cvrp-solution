@@ -1,9 +1,9 @@
-GET https://176.123.168.71:3000/route?id=663662ca9494b67cea8c85de
+GET https://nogorka42.ru:3000/route?id=663662ca9494b67cea8c85de
 Accept: application/json
 
 ###
 
-POST https://176.123.168.71:3000/optimize
+POST https://nogorka42.ru:3000/optimize
 Content-Type: application/json
 
 {
@@ -21,7 +21,7 @@ Content-Type: application/json
 }
 ###
 
-GET https://176.123.168.71:3000/
+GET https://nogorka42.ru:3000/
 Accept: application/json
 
 ###

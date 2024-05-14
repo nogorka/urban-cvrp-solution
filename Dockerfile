@@ -21,4 +21,4 @@ ARG MONGODB_URI
 ENV MONGODB_URI=${MONGODB_URI}
 
 
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "80", "--ssl-keyfile", "/etc/letsencrypt/live/nogorka42.ru/privkey.pem", "--ssl-certfile", "/etc/letsencrypt/live/nogorka42.ru/fullchain.pem"]
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "80", "--ssl-keyfile", "/privkey.pem", "--ssl-certfile", "/fullchain.pem"]

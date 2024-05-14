@@ -10,7 +10,7 @@ app = FastAPI()
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173", "https://nogorka-cvrp.netlify.app/"],
+    allow_origins=["http://localhost:5173", "https://nogorka-cvrp.netlify.app"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -18,7 +18,7 @@ app.add_middleware(
 
 config = {
     'city_name': "Saint Petersburg, Russia",
-    'graph_filename': "../public/road_network_graph.pickle",
+    'graph_filename': "public/road_network_graph.pickle",
     'vehicle_capacity': 1000,
 }
 
