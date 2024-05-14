@@ -1,4 +1,5 @@
 import json
+from typing import List
 
 from pydantic import BaseModel
 
@@ -12,6 +13,11 @@ class Point(BaseModel):
     purpose: str
     total_volume: int
     type: str
+
+
+class RequestOptimizer(BaseModel):
+    capacity: int
+    points: List[Point]
 
 
 class CustomEncoder(json.JSONEncoder):
