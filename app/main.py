@@ -1,8 +1,10 @@
-from fastapi import FastAPI
+from typing import Optional
+
+from fastapi import FastAPI, Query, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
 
-from app.dal import save_route, get_route
+from app.dal import save_route, get_route, get_recent_routes
 from app.ga import ga
 from app.model import RequestOptimizer
 
@@ -52,9 +54,25 @@ async def optimize_route(request: RequestOptimizer):
 
 
 @app.get("/route")
-async def optimize_route(id: str):
-    optimal_route = get_route(id)
-    return optimal_route
+async def get_route_by_id(id: Optional[str] = None, amount: Optional[int] = Query(None, ge=1)):
+    if id:
+        try:
+            route = get_route_by_id(id)
+            if route is None:
+                raise HTTPException(status_code=404, detail="Route not found")
+            return route
+        except Exception as e:
+            raise HTTPException(status_code=400, detail=str(e))
+    elif amount:
+        try:
+            routes = get_recent_routes(amount)
+            if routes is None:
+                raise HTTPException(status_code=404, detail="No routes found")
+            return routes
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=str(e))
+    else:
+        raise HTTPException(status_code=400, detail="Invalid query parameters")
 
 
 if __name__ == "__main__":
