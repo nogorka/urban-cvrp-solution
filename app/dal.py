@@ -26,7 +26,10 @@ async def get_route_by_id(route_id):
 
 async def get_recent_routes(amount):
     routes_collection = get_routes_collection()
-    return list(routes_collection.find().sort("date", -1).limit(amount))
+    entries = list(routes_collection.find().sort("date", -1).limit(amount))
+    for entry in entries:
+        entry['_id'] = str(entry['_id'])
+    return entries
 
 
 if __name__ == "__main__":
