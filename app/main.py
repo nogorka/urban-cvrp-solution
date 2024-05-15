@@ -47,10 +47,16 @@ async def root():
 
 @app.post("/optimize")
 async def optimize_route(request: RequestOptimizer):
-    config['vehicle_capacity'] = request.capacity
-    route = ga(request.points, config, settings)
-    optimal_route = save_route(route)
-    return optimal_route
+    try:
+        if request.points and request.capacity:
+            config['vehicle_capacity'] = request.capacity
+            route = ga(request.points, config, settings)
+            optimal_route = save_route(route)
+            return optimal_route
+        else:
+            raise HTTPException(status_code=404, detail="No points or capacity")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 @app.get("/route")
