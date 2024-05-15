@@ -1,12 +1,14 @@
 from typing import Optional
-
 from fastapi import FastAPI, Query, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
+from dotenv import load_dotenv
 
-from app.dal import save_route, get_route, get_recent_routes
+from app.dal import save_route, get_route_by_id, get_recent_routes
 from app.ga import ga
 from app.model import RequestOptimizer
+
+load_dotenv()
 
 app = FastAPI()
 
@@ -51,7 +53,7 @@ async def optimize_route(request: RequestOptimizer):
         if request.points and request.capacity:
             config['vehicle_capacity'] = request.capacity
             route = ga(request.points, config, settings)
-            optimal_route = save_route(route)
+            optimal_route = await save_route(route)
             return optimal_route
         else:
             raise HTTPException(status_code=404, detail="No points or capacity")
@@ -60,10 +62,10 @@ async def optimize_route(request: RequestOptimizer):
 
 
 @app.get("/route")
-async def get_route_by_id(id: Optional[str] = None, amount: Optional[int] = Query(None, ge=1)):
+async def get_route(id: Optional[str] = None, amount: Optional[int] = Query(None, ge=1)):
     if id:
         try:
-            route = get_route_by_id(id)
+            route = await get_route_by_id(id)
             if route is None:
                 raise HTTPException(status_code=404, detail="Route not found")
             return route
@@ -71,7 +73,7 @@ async def get_route_by_id(id: Optional[str] = None, amount: Optional[int] = Quer
             raise HTTPException(status_code=400, detail=str(e))
     elif amount:
         try:
-            routes = get_recent_routes(amount)
+            routes = await get_recent_routes(amount)
             if routes is None:
                 raise HTTPException(status_code=404, detail="No routes found")
             return routes
