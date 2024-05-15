@@ -22,7 +22,7 @@ app.add_middleware(
 
 config = {
     'city_name': "Saint Petersburg, Russia",
-    'graph_filename': "public/road_network_graph.pickle",
+    'graph_filename': "road_network_graph.pickle",
     'vehicle_capacity': 1000,
 }
 
