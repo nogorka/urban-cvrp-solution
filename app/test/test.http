@@ -3,6 +3,11 @@ Accept: application/json
 
 ###
 
+GET http://0.0.0.0:8000/route?amount=10
+Accept: application/json
+
+###
+
 POST http://0.0.0.0:8000/optimize
 Content-Type: application/json
 

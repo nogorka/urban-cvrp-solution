@@ -1,10 +1,14 @@
-from fastapi import FastAPI
+from typing import Optional
+from fastapi import FastAPI, Query, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
+from dotenv import load_dotenv
 
-from app.dal import save_route, get_route
+from app.dal import save_route, get_route_by_id, get_recent_routes
 from app.ga import ga
 from app.model import RequestOptimizer
+
+load_dotenv()
 
 app = FastAPI()
 
@@ -18,7 +22,7 @@ app.add_middleware(
 
 config = {
     'city_name': "Saint Petersburg, Russia",
-    'graph_filename': "public/road_network_graph.pickle",
+    'graph_filename': "road_network_graph.pickle",
     'vehicle_capacity': 1000,
 }
 
@@ -45,16 +49,38 @@ async def root():
 
 @app.post("/optimize")
 async def optimize_route(request: RequestOptimizer):
-    config['vehicle_capacity'] = request.capacity
-    route = ga(request.points, config, settings)
-    optimal_route = save_route(route)
-    return optimal_route
+    try:
+        if request.points and request.capacity:
+            config['vehicle_capacity'] = request.capacity
+            route = ga(request.points, config, settings)
+            optimal_route = await save_route(route)
+            return optimal_route
+        else:
+            raise HTTPException(status_code=404, detail="No points or capacity")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 @app.get("/route")
-async def optimize_route(id: str):
-    optimal_route = get_route(id)
-    return optimal_route
+async def get_route(id: Optional[str] = None, amount: Optional[int] = Query(None, ge=1)):
+    if id:
+        try:
+            route = await get_route_by_id(id)
+            if route is None:
+                raise HTTPException(status_code=404, detail="Route not found")
+            return route
+        except Exception as e:
+            raise HTTPException(status_code=400, detail=str(e))
+    elif amount:
+        try:
+            routes = await get_recent_routes(amount)
+            if routes is None:
+                raise HTTPException(status_code=404, detail="No routes found")
+            return routes
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=str(e))
+    else:
+        raise HTTPException(status_code=400, detail="Invalid query parameters")
 
 
 if __name__ == "__main__":
