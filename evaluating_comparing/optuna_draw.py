@@ -85,11 +85,11 @@ def plot_importance_with_std(median_importance, std_importance):
     clean_indices = [index.replace('params_', '') for index in indices]
     error_bars = (0 * sorted_stds, sorted_stds)  # (lower errors, upper errors)
 
-    plt.figure(figsize=(12, 7))
+    plt.figure(figsize=(13, 7))
     plt.barh(clean_indices, sorted_medians, xerr=error_bars, capsize=7)
-    plt.xlabel('Median Importance')
-    plt.ylabel('Parameters')
-    plt.title('Median Parameter Importances Across Studies with STD')
+    plt.xlabel('Медианное значение с стандартным отклонением')
+    plt.ylabel('Параметры')
+    plt.title('Важность параметров на тестовых выборках')
     plt.grid(True)
     plt.subplots_adjust(left=0.2)
 

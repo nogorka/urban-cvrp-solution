@@ -37,16 +37,16 @@ def calculate_route_lengths(route, G, NODE_POINTS):
 
 
 # Подсчет минимального пути по Диикстре
-def calculate_distance(node1, node2, nxG):
-    shortest_path = nx.shortest_path(nxG, source=node1, target=node2, weight='length')
-    total_distance = sum(nxG[shortest_path[i]][shortest_path[i + 1]]['length'] for i in range(len(shortest_path) - 1))
-    return round(total_distance)
-
-
 # def calculate_distance(node1, node2, nxG):
-#     shortest_path = nx.astar_path(nxG, source=node1, target=node2, weight='length')
-#     total_distance = sum(nxG[shortest_path[i]][shortest_path[i+1]]['length'] for i in range(len(shortest_path)-1))
+#     shortest_path = nx.shortest_path(nxG, source=node1, target=node2, weight='length')
+#     total_distance = sum(nxG[shortest_path[i]][shortest_path[i + 1]]['length'] for i in range(len(shortest_path) - 1))
 #     return round(total_distance)
+
+
+def calculate_distance(node1, node2, nxG):
+    shortest_path = nx.astar_path(nxG, source=node1, target=node2, weight='length')
+    total_distance = sum(nxG[shortest_path[i]][shortest_path[i+1]]['length'] for i in range(len(shortest_path)-1))
+    return round(total_distance)
 
 # def calculate_distance(node1, node2, nxG):
 #     shortest_path = nx.shortest_path_length(nxG, source=node1, target=node2, weight='length')

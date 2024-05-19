@@ -1,33 +1,33 @@
 Unnamed: 0,Metric,Median,Standard Deviation,Source_File
-0,Distance (km),1928.0,157.96,30_ex_9.csv
-1,Execution Time (s),0.31,1.42,30_ex_9.csv
-0,Distance (km),1949.0,165.37,30_ex_11.csv
-1,Execution Time (s),0.3,0.29,30_ex_11.csv
-0,Distance (km),799.0,78.91,15_ex_7.csv
-1,Execution Time (s),0.08,0.2,15_ex_7.csv
+0,Distance (km),1892.0,223.92,30_ex_9.csv
+1,Execution Time (s),0.34,0.31,30_ex_9.csv
+0,Distance (km),1716.0,190.22,30_ex_11.csv
+1,Execution Time (s),0.3,0.15,30_ex_11.csv
+0,Distance (km),794.0,109.3,15_ex_7.csv
+1,Execution Time (s),0.08,0.11,15_ex_7.csv
 0,Distance (km),2792.0,53.68,50_ex_16.csv
 1,Execution Time (s),1.05,1.45,50_ex_16.csv
 0,Distance (km),2467.0,66.59,50_ex_15.csv
 1,Execution Time (s),0.97,0.07,50_ex_15.csv
-0,Distance (km),1725.0,189.36,30_ex_12.csv
-1,Execution Time (s),0.33,1.23,30_ex_12.csv
-0,Distance (km),747.0,106.16,15_ex_8.csv
-1,Execution Time (s),0.1,1.29,15_ex_8.csv
+0,Distance (km),1696.0,84.96,30_ex_12.csv
+1,Execution Time (s),1.68,1.3,30_ex_12.csv
+0,Distance (km),782.0,62.16,15_ex_8.csv
+1,Execution Time (s),0.11,0.42,15_ex_8.csv
 0,Distance (km),2893.0,153.98,50_ex_14.csv
 1,Execution Time (s),0.9,1.8,50_ex_14.csv
-0,Distance (km),823.0,40.58,15_ex_6.csv
-1,Execution Time (s),0.37,0.65,15_ex_6.csv
-0,Distance (km),886.0,43.79,15_ex_5.csv
-1,Execution Time (s),0.12,0.12,15_ex_5.csv
-0,Distance (km),593.0,53.81,10_ex_4.csv
-1,Execution Time (s),0.06,0.23,10_ex_4.csv
-0,Distance (km),1553.0,154.58,30_ex_10.csv
-1,Execution Time (s),0.38,2.02,30_ex_10.csv
-0,Distance (km),514.0,43.76,10_ex_1.csv
-1,Execution Time (s),0.06,0.12,10_ex_1.csv
-0,Distance (km),648.0,59.2,10_ex_3.csv
+0,Distance (km),829.0,86.64,15_ex_6.csv
+1,Execution Time (s),0.17,0.43,15_ex_6.csv
+0,Distance (km),904.0,156.14,15_ex_5.csv
+1,Execution Time (s),0.1,0.02,15_ex_5.csv
+0,Distance (km),575.0,59.96,10_ex_4.csv
+1,Execution Time (s),0.06,0.4,10_ex_4.csv
+0,Distance (km),1808.0,216.68,30_ex_10.csv
+1,Execution Time (s),1.67,2.33,30_ex_10.csv
+0,Distance (km),523.0,85.15,10_ex_1.csv
+1,Execution Time (s),0.05,0.48,10_ex_1.csv
+0,Distance (km),633.0,39.76,10_ex_3.csv
 1,Execution Time (s),0.05,0.0,10_ex_3.csv
-0,Distance (km),453.0,25.35,10_ex_2.csv
-1,Execution Time (s),0.12,0.48,10_ex_2.csv
+0,Distance (km),446.0,31.12,10_ex_2.csv
+1,Execution Time (s),0.13,0.28,10_ex_2.csv
 0,Distance (km),2428.0,103.26,50_ex_13.csv
 1,Execution Time (s),0.9,1.0,50_ex_13.csv

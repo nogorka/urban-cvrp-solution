@@ -1,3 +1,4 @@
+import csv
 import heapq
 import math
 import os
@@ -5,9 +6,12 @@ import time
 
 import networkx as nx
 import numpy as np
+import pandas as pd
+from matplotlib import pyplot as plt
 from tqdm import tqdm
 
 from algorithms.graph_algorithms import get_graph, optimize_graph_nx
+from preprocessing.input_preprocess import get_all_filenames
 from v2oop.graph import set_node_all_point_list
 from v2oop.preprocess import read_csv_to_point_list
 from v2oop.graph import precompute_distances as pre_dist
@@ -99,17 +103,8 @@ def reconstruct_path(forward_parent, backward_parent, meeting_point):
     return path
 
 
-def city_case():
-    config = {
-        'city_name': "Saint Petersburg, Russia",
-        'graph_filename': "../public/road_network_graph.pickle",
-        'input_dir': "../public/",
-        'output_dir': "../public/result_routes/",
-        'file': '50_ex.csv',
-        'vehicle_capacity': 1000,
-    }
-
-    input_csv = os.path.join(config['input_dir'], config['file'])
+def city_case(filename, config):
+    input_csv = os.path.join(config['input_dir'], filename)
 
     city_graph = get_graph(config['city_name'], config['graph_filename'])
     graph_nx = optimize_graph_nx(city_graph)
@@ -126,17 +121,75 @@ def calculate_distance_3(node1, node2, nxG):
     return round(total_distance)
 
 
-if __name__ == "__main__":
-    G, city_points = city_case()
+def score(method, G, city_points):
     start = time.time()
-    distance_matrix = precompute_distances(G, city_points)
+    _ = method(G, city_points)
     end = time.time()
-    print(f'Time: {end - start} \n')
+    return round((end - start) * 1000)
 
-    start = time.time()
-    distance_matrix2 = pre_dist(G, city_points)
-    end = time.time()
-    print(f'Time: {end - start} \n')
+
+def get_results(config):
+    results = []
+    for filename in get_all_filenames(config['input_dir']):
+        G, city_points = city_case(filename, config)
+
+        estimate1 = score(precompute_distances, G, city_points)
+        results.append([filename, 2, estimate1])
+
+        estimate2 = score(pre_dist, G, city_points)
+        results.append([filename, 1, estimate2])
+    return results
+
+
+def save(results):
+    out = '../public/a_star_comparing.csv'
+    with open(out, mode='w', newline='') as file:
+        writer = csv.writer(file)
+        writer.writerow(['filename', '№ directions', 'Execution Time (s)'])
+
+        for data in results:
+            [filename, directions, execution] = data
+            writer.writerow([filename, directions, execution])
+
+    print(f"\nData successfully written to {out}")
+
+
+def draw_chart(data):
+    df = pd.DataFrame(data, columns=['file', 'algorithm_type', 'time_ms'])
+
+    plt.figure(figsize=(10, 6))
+
+    subset1 = df[df['algorithm_type'] == 1]
+    plt.plot(subset1['file'], subset1['time_ms'], marker='o', label='Однонаправленный A*', color='blue')
+
+    subset2 = df[df['algorithm_type'] == 2]
+    plt.plot(subset2['file'], subset2['time_ms'], marker='o', label='Двунаправленный A*', color='green')
+
+    plt.title('Сравнение времени выполнения алгоритмов A*')
+    plt.xlabel('Название файла')
+    plt.ylabel('Время (мс)')
+    plt.xticks(rotation=90)
+    plt.legend(title='Тип алгоритма')
+    plt.grid(True)
+    plt.tight_layout()
+    plt.show()
+
+
+if __name__ == "__main__":
+    config = {
+        'city_name': "Saint Petersburg, Russia",
+        'graph_filename': "../public/road_network_graph.pickle",
+        'input_dir': "../public/test_routes/",
+        # 'output_dir': "../public/result_routes/",
+        # 'file': '10_ex_1.csv',
+        # 'vehicle_capacity': 1000,
+    }
+
+    results = get_results(config)
+    save(results)
+    print(results)
+
+    draw_chart(results)
 
     # p1, p2 = city_points[0].node_id, city_points[1].node_id
     # distance = calculate_distance(p1, p2, G)
